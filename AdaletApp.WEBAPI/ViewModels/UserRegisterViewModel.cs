@@ -8,6 +8,6 @@ namespace AdaletApp.WEBAPI.ViewModels
         public string EMail { get; set; }
         [Required(ErrorMessage = "Password is Required")]
         public string Password { get; set; }
-        [Required(ErrorMessage = "Role Type is Required")]
+
     }
 }
