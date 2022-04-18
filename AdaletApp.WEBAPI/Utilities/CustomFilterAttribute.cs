@@ -1,13 +1,18 @@
 ﻿using AdaletApp.DAL.Concrete.EFCore;
+using AdaletApp.WEBAPI.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Net;
 
 namespace AdaletApp.WEBAPI.Utilities
 {
-    public class CustomFilterAttribute<T> : IActionFilter, IExceptionFilter where T : class
+    public class CustomFilterAttribute<T> : IActionFilter, IAuthorizationFilter, IExceptionFilter where T : class
     {
         private readonly ResponseResult<T> responseResult;
         private readonly AppDbContext appDbContext;
+
         public CustomFilterAttribute(AppDbContext appContext)
         {
             this.responseResult = new ResponseResult<T>();
@@ -22,7 +27,8 @@ namespace AdaletApp.WEBAPI.Utilities
         {
             if (context.ActionArguments.ContainsKey("id"))
             {
-                int id = (int)context.ActionArguments["id"];
+                int id = Convert.ToInt32(context.ActionArguments["id"]);
+
                 var entity = this.appDbContext.Set<T>().Find(id);
                 if (entity == null)
                 {
@@ -49,6 +55,22 @@ namespace AdaletApp.WEBAPI.Utilities
                 this.responseResult.StatusCode = System.Net.HttpStatusCode.BadRequest;
                 context.Result = new BadRequestObjectResult(this.responseResult);
             }
+        }
+
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            var endpoint = context.HttpContext.GetEndpoint();
+            if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+            {
+                return;
+            }
+
+            else
+            {
+                context.Result = new NotFoundObjectResult("deneme");
+                
+            }
+
         }
 
         public void OnException(ExceptionContext context)
