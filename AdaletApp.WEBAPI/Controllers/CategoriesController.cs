@@ -46,10 +46,21 @@ namespace AdaletApp.WEBAPI.Controllers
         public async Task<IActionResult> UpdateCategoey(int id, [FromBody] Category category)
         {
             var entity = HttpContext.Items["entity"] as Category;
-            this.responseResult.Entity = await _categoryRepository.Update(category);
+
+            entity.Explanation = category.Explanation;
+            entity.SeoUrl = category.SeoUrl;
+            entity.UpdateDate = DateTime.Now;
+            entity.SeoKeywords = category.SeoKeywords;
+            entity.Active = category.Active;
+            entity.CategoryName = category.CategoryName;
+            entity.MainPageCategory = category.MainPageCategory;
+            entity.SeoDescription = category.SeoDescription;
+            entity.SeoTitle = category.SeoTitle;
+
+            this.responseResult.Entity = await _categoryRepository.Update(entity);
             return Ok(responseResult);
         }
-        
+
         [HttpDelete("DeleteCategory/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {

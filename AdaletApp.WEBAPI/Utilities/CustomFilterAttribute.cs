@@ -67,8 +67,8 @@ namespace AdaletApp.WEBAPI.Utilities
 
             else
             {
-                context.Result = new NotFoundObjectResult("deneme");
-                
+                context.Result = new UnauthorizedObjectResult("Unauthorized.. Invalid EMail Or Password");
+
             }
 
         }

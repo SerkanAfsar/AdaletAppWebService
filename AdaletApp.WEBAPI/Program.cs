@@ -4,6 +4,7 @@ using AdaletApp.Entities;
 using AdaletApp.WEBAPI.Abstract;
 using AdaletApp.WEBAPI.Concrete;
 using AdaletApp.WEBAPI.Utilities;
+using AdaletApp.WEBAPI.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -20,10 +21,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
 builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
-
+builder.Services.AddSingleton<ICategorySourceRepository, CategorySourceRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+
 builder.Services.AddScoped<CustomFilterAttribute<Article>>();
 builder.Services.AddScoped<CustomFilterAttribute<Category>>();
+builder.Services.AddScoped<CustomFilterAttribute<UserLoginViewModel>>();
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {
     options.Password.RequireDigit = false;
