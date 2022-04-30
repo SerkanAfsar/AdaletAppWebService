@@ -23,6 +23,7 @@ builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
 builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
 builder.Services.AddSingleton<ICategorySourceRepository, CategorySourceRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddSingleton<IHukukiHaberRepository, IHukukiHaberRepository>();
 
 builder.Services.AddScoped<CustomFilterAttribute<Article>>();
 builder.Services.AddScoped<CustomFilterAttribute<Category>>();

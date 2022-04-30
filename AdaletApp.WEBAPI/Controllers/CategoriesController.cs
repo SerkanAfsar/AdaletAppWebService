@@ -68,6 +68,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await _categoryRepository.Delete(entity);
             return Ok(this.responseResult);
         }
+        
 
     }
 }
