@@ -9,5 +9,6 @@ namespace AdaletApp.DAL.Abstract
 {
     public interface IArticleRepository : IRepository<Article>
     {
+        public Task<bool> HasArticle(string title);
     }
 }

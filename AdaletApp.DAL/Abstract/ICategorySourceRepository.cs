@@ -9,5 +9,6 @@ namespace AdaletApp.DAL.Abstract
 {
     public interface ICategorySourceRepository : IRepository<CategorySource>
     {
+        public Task SaveAllNews();
     }
 }

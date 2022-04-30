@@ -8,15 +8,22 @@ namespace AdaletApp.WEBAPI.Controllers
     [Authorize]
     public class NewsController : Controller
     {
-        private readonly IHukukiHaberRepository hukukiHaberRepository;
-        public NewsController(IHukukiHaberRepository hukukiHaberRepository)
+        private readonly ICategorySourceRepository _categorySourceRepository;
+        public NewsController(ICategorySourceRepository _categorySourceRepository)
         {
-            this.hukukiHaberRepository = hukukiHaberRepository;
+            this._categorySourceRepository = _categorySourceRepository;
+
         }
-        [HttpGet("GetCategoryNewsByUrl/{categoryUrl}")]
-        public async Task<IActionResult> GetCategoryNewsByUrl(string categoryUrl)
+
+
+        [AllowAnonymous]
+        [HttpGet("GetCategoryNewsByUrl")]
+        public async Task<IActionResult> GetCategoryNewsByUrl()
         {
-            return Ok(await this.hukukiHaberRepository.ArticleSourceList("deneme"));
+
+            //return Ok(await this._categorySourceRepository.GetAllNewsUrl())
+            await this._categorySourceRepository.SaveAllNews();
+            return Ok("Bütün Haberler Kaydedildi");
         }
     }
 }

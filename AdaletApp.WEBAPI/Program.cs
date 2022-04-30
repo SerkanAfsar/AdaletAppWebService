@@ -1,4 +1,5 @@
 using AdaletApp.DAL.Abstract;
+using AdaletApp.DAL.Concrete;
 using AdaletApp.DAL.Concrete.EFCore;
 using AdaletApp.Entities;
 using AdaletApp.WEBAPI.Abstract;
@@ -23,7 +24,8 @@ builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
 builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
 builder.Services.AddSingleton<ICategorySourceRepository, CategorySourceRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddSingleton<IHukukiHaberRepository, IHukukiHaberRepository>();
+builder.Services.AddSingleton<IHukukiHaberRepository, HukukiHaberRepository>();
+builder.Services.AddSingleton<IAdaletBizRepository, AdaletBizRepository>();
 
 builder.Services.AddScoped<CustomFilterAttribute<Article>>();
 builder.Services.AddScoped<CustomFilterAttribute<Category>>();

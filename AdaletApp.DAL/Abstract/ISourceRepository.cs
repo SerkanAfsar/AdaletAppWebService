@@ -9,7 +9,8 @@ namespace AdaletApp.DAL.Abstract
 {
     public interface ISourceRepository
     {
+        Task ArticleSourceList(string categorySourceUrl,int CategoryID);
+        Task AddArticleToDb(string articleSourceUrl, int CategoryID);
 
-        Task<List<string>> ArticleSourceList(string categorySourceUrl);
     }
 }
