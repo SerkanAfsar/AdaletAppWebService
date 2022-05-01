@@ -1,4 +1,5 @@
 ﻿using AdaletApp.DAL.Abstract;
+using AdaletApp.DAL.Utilites;
 using AdaletApp.Entities;
 using HtmlAgilityPack;
 using System;
@@ -30,8 +31,8 @@ namespace AdaletApp.DAL.Concrete
                 var doc = new HtmlDocument();
                 doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
-
                 HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='span hs-item hs-beh hs-kill-ml clearfix']//a");
+                nodes.Reverse();
                 foreach (var node in nodes)
                 {
                     await AddArticleToDb(node.Attributes["href"]?.Value, CategoryID);
@@ -47,7 +48,6 @@ namespace AdaletApp.DAL.Concrete
 
             using (var client = new HttpClient(clientHandler))
             {
-
                 var document = await client.GetAsync(articleSourceUrl);
                 if (!document.IsSuccessStatusCode)
                     return;
@@ -74,15 +74,29 @@ namespace AdaletApp.DAL.Concrete
                         {
                             article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
                         }
+
+                        HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
+                        if (pictureNode != null)
+                        {
+
+                            var picUrl = pictureNode.Attributes["src"]?.Value;
+                            var fileExt = Path.GetExtension(picUrl);
+                            var fileName = Helper.KarakterDuzelt(title) + fileExt;
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+                            var imageBytes = await client.GetByteArrayAsync(picUrl);
+                            await File.WriteAllBytesAsync(filePath, imageBytes);
+                            article.PictureUrl = fileName;
+
+                        }
+                        article.SeoUrl = Helper.KarakterDuzelt(title);
                         article.CategoryId = CategoryID;
                         article.SourceUrl = articleSourceUrl;
                         article.Source = SourceList.ADALETBIZ;
-                        article.SeoUrl = "/haberler/test-haber";
-
+                        article.Active = true;
                         await this._articleRepository.Add(article);
                     }
-                }
 
+                }
             }
         }
     }

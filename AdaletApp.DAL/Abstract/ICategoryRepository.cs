@@ -9,5 +9,6 @@ namespace AdaletApp.DAL.Abstract
 {
     public interface ICategoryRepository : IRepository<Category>
     {
+        
     }
 }

@@ -145,13 +145,7 @@ namespace AdaletApp.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PictureBig")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PictureMedium")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PictureSmall")
+                    b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Queue")

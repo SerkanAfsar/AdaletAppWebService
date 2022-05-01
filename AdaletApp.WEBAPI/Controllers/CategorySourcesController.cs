@@ -36,13 +36,13 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
         [HttpPost("AddCategorySource")]
-        public async Task<IActionResult> AddCategorySource(CategorySource categorySource)
+        public async Task<IActionResult> AddCategorySource([FromBody] CategorySource categorySource)
         {
             this.responseResult.Entity = await categorySourceRepository.Add(categorySource);
             return Ok(this.responseResult);
         }
         [HttpPut("UpdateCategorySource/{id}")]
-        public async Task<IActionResult> UpdateCategorySource(int id, CategorySource model)
+        public async Task<IActionResult> UpdateCategorySource(int id, [FromBody] CategorySource model)
         {
             var entity = HttpContext.Items["entity"] as CategorySource;
             entity.UpdateDate = DateTime.Now;

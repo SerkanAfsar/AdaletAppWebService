@@ -11,9 +11,8 @@ namespace AdaletApp.Entities
         public string Title { get; set; }
         public string SubTitle { get; set; }
         public string NewsContent { get; set; }
-        public string? PictureBig { get; set; }
-        public string? PictureMedium { get; set; }
-        public string? PictureSmall { get; set; }
+        public string? PictureUrl { get; set; }
+
         public string SourceUrl { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }

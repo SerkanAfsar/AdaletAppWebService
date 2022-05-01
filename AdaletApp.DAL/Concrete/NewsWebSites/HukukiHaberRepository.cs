@@ -1,9 +1,11 @@
 ﻿using AdaletApp.DAL.Abstract;
+using AdaletApp.DAL.Utilites;
 using AdaletApp.Entities;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -23,7 +25,7 @@ namespace AdaletApp.DAL.Concrete
         {
             using (var client = new HttpClient())
             {
-                var document = await client.GetAsync("https://www.hukukihaber.net/ozel-hukuk");
+                var document = await client.GetAsync(categorySourceUrl);
                 if (!document.IsSuccessStatusCode)
                     return;
 
@@ -31,6 +33,7 @@ namespace AdaletApp.DAL.Concrete
                 doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
                 HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
+                nodes.Reverse();
                 foreach (var node in nodes)
                 {
                     await AddArticleToDb(node.Attributes["href"]?.Value, CategoryID);
@@ -40,47 +43,72 @@ namespace AdaletApp.DAL.Concrete
         }
         public async Task AddArticleToDb(string articleSourceUrl, int CategoryID)
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
-
-            using (var client = new HttpClient(clientHandler))
+            try
             {
-                var document = await client.GetAsync(articleSourceUrl);
-                if (!document.IsSuccessStatusCode)
-                    return;
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
-                var doc = new HtmlDocument();
-                doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@itemprop='name']");
-                if (nodeTitle != null)
+                using (var client = new HttpClient(clientHandler))
                 {
-                    var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
-                    if (await _articleRepository.HasArticle(title) == true)
-                    {
-                        var article = new Article();
-                        article.Title = title;
+                    var document = await client.GetAsync(articleSourceUrl);
+                    if (!document.IsSuccessStatusCode)
+                        return;
 
-                        HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2[@itemprop='description']");
-                        if (subDesc != null)
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(await document.Content.ReadAsStringAsync());
+
+                    HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@itemprop='name']");
+                    if (nodeTitle != null)
+                    {
+                        var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
+                        if (await _articleRepository.HasArticle(title) == true)
                         {
-                            article.SubTitle = HttpUtility.HtmlDecode(subDesc.InnerText);
+                            var article = new Article();
+                            article.Title = title;
+
+                            HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2[@itemprop='description']");
+                            if (subDesc != null)
+                            {
+                                article.SubTitle = HttpUtility.HtmlDecode(subDesc.InnerText);
+                            }
+                            HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@itemprop='articleBody']");
+                            if (nodeContent != null)
+                            {
+                                article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
+                            }
+
+                            HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
+                            if (pictureNode != null)
+                            {
+
+                                var picUrl = pictureNode.Attributes["src"]?.Value;
+                                var fileExt = Path.GetExtension(picUrl);
+                                var fileName = Helper.KarakterDuzelt(title) + fileExt;
+                                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+                                var imageBytes = await client.GetByteArrayAsync(picUrl);
+                                await File.WriteAllBytesAsync(filePath, imageBytes);
+                                article.PictureUrl = fileName;
+
+
+                            }
+
+                            article.SeoUrl = Helper.KarakterDuzelt(title);
+                            article.CategoryId = CategoryID;
+                            article.SourceUrl = articleSourceUrl;
+                            article.Source = SourceList.HUKUKHABERLERI;
+                            article.Active = true;
+
+                            await this._articleRepository.Add(article);
                         }
-                        HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@itemprop='articleBody']");
-                        if (nodeContent != null)
-                        {
-                            article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
-                        }
-                        article.CategoryId = CategoryID;
-                        article.SourceUrl = articleSourceUrl;
-                        article.Source = SourceList.HUKUKHABERLERI;
-                        article.SeoUrl = "/haberler/test-haber";
-                        await this._articleRepository.Add(article);
                     }
+
                 }
+            }
+
+            catch (Exception ex)
+            {
 
             }
         }
-
     }
 }

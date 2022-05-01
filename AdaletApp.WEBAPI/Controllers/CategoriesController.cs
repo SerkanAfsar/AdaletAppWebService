@@ -43,7 +43,7 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
         [HttpPut("UpdateCategory/{id}")]
-        public async Task<IActionResult> UpdateCategoey(int id, [FromBody] Category category)
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
         {
             var entity = HttpContext.Items["entity"] as Category;
 
