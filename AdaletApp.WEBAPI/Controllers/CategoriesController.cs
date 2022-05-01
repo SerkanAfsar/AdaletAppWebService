@@ -35,6 +35,14 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entities = await _categoryRepository.GetAll();
             return Ok(this.responseResult);
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetMainPageCategories")]
+        public async Task<IActionResult> GetMainPageCategories()
+        {
+            this.responseResult.Entities = await _categoryRepository.GetMainPageCategories();
+            return Ok(this.responseResult);
+        }
         [HttpPost("AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
@@ -68,7 +76,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await _categoryRepository.Delete(entity);
             return Ok(this.responseResult);
         }
-        
+
 
     }
 }

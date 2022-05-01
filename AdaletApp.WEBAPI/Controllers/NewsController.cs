@@ -33,6 +33,14 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("TestDeneme/{testid}")]
+        public async Task<IActionResult> TestDeneme(int testid)
+        {
+            this.responseResult.Entity = await articleRepository.GetArticleIncludeCategory(testid);
+            return Ok(this.responseResult);
+        }
+
+        [AllowAnonymous]
         [HttpGet("GetNewsByCategoryID/{categoryId}")]
         public async Task<IActionResult> GetNewsByCategoryID(int categoryId)
         {
