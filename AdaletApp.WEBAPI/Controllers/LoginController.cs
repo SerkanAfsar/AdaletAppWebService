@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ServiceFilter(typeof(CustomFilterAttribute<UserLoginViewModel>))]
     public class LoginController : Controller
     {
@@ -40,7 +41,9 @@ namespace AdaletApp.WEBAPI.Controllers
             var appUser = new AppUser
             {
                 Email = model.EMail,
-                UserName = model.EMail
+                UserName = model.EMail,
+                NameSurname = "Serkan Afşar",
+
             };
             var result = await userManager.CreateAsync(appUser, model.Password);
             if (result.Succeeded)

@@ -33,8 +33,8 @@ namespace AdaletApp.DAL.Concrete
                 doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
                 HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
-                nodes.Reverse();
-                foreach (var node in nodes)
+                var list = nodes.Reverse();
+                foreach (var node in list)
                 {
                     await AddArticleToDb(node.Attributes["href"]?.Value, CategoryID);
                 }

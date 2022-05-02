@@ -33,14 +33,6 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("TestDeneme/{testid}")]
-        public async Task<IActionResult> TestDeneme(int testid)
-        {
-            this.responseResult.Entity = await articleRepository.GetArticleIncludeCategory(testid);
-            return Ok(this.responseResult);
-        }
-
-        [AllowAnonymous]
         [HttpGet("GetNewsByCategoryID/{categoryId}")]
         public async Task<IActionResult> GetNewsByCategoryID(int categoryId)
         {
@@ -91,7 +83,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await articleRepository.Update(entity);
             return Ok(this.responseResult);
         }
-        [AllowAnonymous]
+
         [HttpDelete("DeleteArticle/{id}")]
         public async Task<IActionResult> DeleteArticle(int id)
         {
@@ -105,9 +97,6 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await articleRepository.Delete(entity);
             return Ok(this.responseResult);
         }
-
-
-
 
     }
 }

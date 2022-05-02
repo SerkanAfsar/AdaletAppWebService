@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdaletApp.Entities
+namespace AdaletApp.DAL.Abstract.NewsWebSites
 {
-    public enum SourceList
+    public interface IAdaletMedyaRepository : ISourceRepository
     {
-        HUKUKHABERLERI = 1,
-        ADALETBIZ = 2,
-        ADALETMEDYA = 3
     }
 }

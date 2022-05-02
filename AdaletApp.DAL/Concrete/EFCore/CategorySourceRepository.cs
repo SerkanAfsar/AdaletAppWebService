@@ -1,4 +1,5 @@
 ﻿using AdaletApp.DAL.Abstract;
+using AdaletApp.DAL.Abstract.NewsWebSites;
 using AdaletApp.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,13 @@ namespace AdaletApp.DAL.Concrete.EFCore
     {
         private readonly IAdaletBizRepository adaletBizRepository;
         private readonly IHukukiHaberRepository hukukiHaberRepository;
-        public CategorySourceRepository(IAdaletBizRepository adaletBizRepository, IHukukiHaberRepository hukukiHaberRepository)
+        private readonly IAdaletMedyaRepository adaletMedyaRepository;
+        public CategorySourceRepository(IAdaletBizRepository adaletBizRepository, IHukukiHaberRepository hukukiHaberRepository, IAdaletMedyaRepository adaletMedyaRepository)
         {
             this.adaletBizRepository = adaletBizRepository;
             this.hukukiHaberRepository = hukukiHaberRepository;
+            this.adaletMedyaRepository = adaletMedyaRepository;
+
         }
         public async Task SaveAllNews()
         {
@@ -25,14 +29,19 @@ namespace AdaletApp.DAL.Concrete.EFCore
             {
                 switch (item.Source)
                 {
-                    case SourceList.HUKUKHABERLERI:
+                    //case SourceList.HUKUKHABERLERI:
+                    //    {
+                    //        await this.hukukiHaberRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                    //        break;
+                    //    }
+                    //case SourceList.ADALETBIZ:
+                    //    {
+                    //        await this.adaletBizRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                    //        break;
+                    //    }
+                    case SourceList.ADALETMEDYA:
                         {
-                            await this.hukukiHaberRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
-                            break;
-                        }
-                    case SourceList.ADALETBIZ:
-                        {
-                            await this.adaletBizRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                            await this.adaletMedyaRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
                             break;
                         }
                     default:

@@ -59,15 +59,20 @@ namespace AdaletApp.WEBAPI.Utilities
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            //auth işlemi doğru olduğunda çalışır
+
             var endpoint = context.HttpContext.GetEndpoint();
             if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
             {
                 return;
             }
-
             else
             {
-                context.Result = new UnauthorizedObjectResult("Unauthorized.. Invalid EMail Or Password");
+                var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
+                if (!IsAuthenticated)
+                {
+                    context.Result = new UnauthorizedObjectResult("Unauthorized.. Invalid EMail Or Password");
+                }
 
             }
 

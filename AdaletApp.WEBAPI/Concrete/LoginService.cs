@@ -5,6 +5,7 @@ using AdaletApp.WEBAPI.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace AdaletApp.WEBAPI.Concrete
@@ -36,7 +37,6 @@ namespace AdaletApp.WEBAPI.Concrete
                 return this.responseResult;
             }
 
-
             var user = await userManager.FindByEmailAsync(loginViewModel.EMail);
             if (user == null)
             {
@@ -44,29 +44,29 @@ namespace AdaletApp.WEBAPI.Concrete
                 return this.responseResult;
             }
 
-            if (await userManager.CheckPasswordAsync(user, loginViewModel.Password))
+            if (await userManager.CheckPasswordAsync(user, loginViewModel.Password) == false)
             {
                 this.responseResult.ErrorList.Add("Şifre Yanlış!");
                 return this.responseResult;
             }
 
+            var claims = new List<Claim>();
+            claims.Add(new Claim("ID", user.Id));
+            claims.Add(new Claim("UserName", user.NameSurname));
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken
+            (
+                 configuration["JWT:ValidIssuer"],
+                 configuration["JWT:ValidAudience"],
+                 claims,
+                 expires: DateTime.UtcNow.AddDays(7),
+                 signingCredentials: signIn
+
+            );
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configuration["JWT:Secret"]);
-            var claims = new Dictionary<string, object>();
-            foreach (var role in await userManager.GetRolesAsync(user))
-            {
-                claims.Add("Role", role);
-
-            }
-            claims.Add("ID", user.Id);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Claims = claims,
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenKey = tokenHandler.WriteToken(token);
             this.responseResult.IsSuccess = true;
             this.responseResult.HasError = false;
