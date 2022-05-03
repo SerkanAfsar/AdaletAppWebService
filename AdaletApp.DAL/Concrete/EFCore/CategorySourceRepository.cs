@@ -14,7 +14,9 @@ namespace AdaletApp.DAL.Concrete.EFCore
         private readonly IAdaletBizRepository adaletBizRepository;
         private readonly IHukukiHaberRepository hukukiHaberRepository;
         private readonly IAdaletMedyaRepository adaletMedyaRepository;
-        public CategorySourceRepository(IAdaletBizRepository adaletBizRepository, IHukukiHaberRepository hukukiHaberRepository, IAdaletMedyaRepository adaletMedyaRepository)
+        public CategorySourceRepository(IAdaletBizRepository adaletBizRepository,
+            IHukukiHaberRepository hukukiHaberRepository,
+            IAdaletMedyaRepository adaletMedyaRepository)
         {
             this.adaletBizRepository = adaletBizRepository;
             this.hukukiHaberRepository = hukukiHaberRepository;
@@ -29,16 +31,16 @@ namespace AdaletApp.DAL.Concrete.EFCore
             {
                 switch (item.Source)
                 {
-                    //case SourceList.HUKUKHABERLERI:
-                    //    {
-                    //        await this.hukukiHaberRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
-                    //        break;
-                    //    }
-                    //case SourceList.ADALETBIZ:
-                    //    {
-                    //        await this.adaletBizRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
-                    //        break;
-                    //    }
+                    case SourceList.HUKUKHABERLERI:
+                        {
+                            await this.hukukiHaberRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                            break;
+                        }
+                    case SourceList.ADALETBIZ:
+                        {
+                            await this.adaletBizRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                            break;
+                        }
                     case SourceList.ADALETMEDYA:
                         {
                             await this.adaletMedyaRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);

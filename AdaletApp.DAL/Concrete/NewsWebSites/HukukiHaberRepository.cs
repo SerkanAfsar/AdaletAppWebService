@@ -14,8 +14,6 @@ namespace AdaletApp.DAL.Concrete
 {
     public class HukukiHaberRepository : IHukukiHaberRepository
     {
-
-
         private readonly IArticleRepository _articleRepository;
         public HukukiHaberRepository(IArticleRepository _articleRepository)
         {

@@ -76,7 +76,15 @@ builder.Services.AddAuthentication(options =>
 });
 
 
+
+
 builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options => options.AddPolicy("customPolicy", builder =>
+{
+    builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+}));
+
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -126,6 +134,9 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseCors("customPolicy");
 app.MapControllers();
+
+
 
 app.Run();
