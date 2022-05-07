@@ -46,6 +46,7 @@ namespace AdaletApp.WEBAPI.Controllers
         [HttpPost("AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
+            category.SeoUrl = FriendlySeoUrl.KarakterDuzelt(category.CategoryName);
             this.responseResult.Entity = await _categoryRepository.Add(category);
             return Ok(responseResult);
         }
@@ -54,7 +55,6 @@ namespace AdaletApp.WEBAPI.Controllers
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
         {
             var entity = HttpContext.Items["entity"] as Category;
-
             entity.Explanation = category.Explanation;
             entity.SeoUrl = category.SeoUrl;
             entity.UpdateDate = DateTime.Now;
@@ -64,6 +64,7 @@ namespace AdaletApp.WEBAPI.Controllers
             entity.MainPageCategory = category.MainPageCategory;
             entity.SeoDescription = category.SeoDescription;
             entity.SeoTitle = category.SeoTitle;
+            entity.SeoUrl = FriendlySeoUrl.KarakterDuzelt(category.CategoryName);
 
             this.responseResult.Entity = await _categoryRepository.Update(entity);
             return Ok(responseResult);
