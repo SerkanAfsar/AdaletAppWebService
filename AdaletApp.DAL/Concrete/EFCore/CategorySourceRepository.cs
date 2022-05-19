@@ -1,6 +1,7 @@
 ﻿using AdaletApp.DAL.Abstract;
 using AdaletApp.DAL.Abstract.NewsWebSites;
 using AdaletApp.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,9 @@ namespace AdaletApp.DAL.Concrete.EFCore
             this.adaletMedyaRepository = adaletMedyaRepository;
 
         }
+
+    
+
         public async Task SaveAllNews()
         {
             var list = new List<string>();

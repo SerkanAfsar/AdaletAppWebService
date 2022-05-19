@@ -12,5 +12,6 @@ namespace AdaletApp.DAL.Abstract
         public Task<bool> HasArticle(string title);
         public Task<List<Article>> GetArticlesByCategoryIdLimit(int CategoryID, int pageNumber, int limit);
         public Task<Article> GetArticleIncludeCategory(int NewsID);
+        public Task<int> GetAllNewsCount();
     }
 }

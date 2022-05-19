@@ -40,6 +40,12 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
         [AllowAnonymous]
+        [HttpGet("GetNewsCount")]
+        public async Task<IActionResult> GetNewsCount()
+        {
+            return Ok(await articleRepository.GetAllNewsCount());
+        }
+        [AllowAnonymous]
         [HttpGet("GetNewsByCategoryIDPager/{categoryId}/{pageCount}/{limit}")]
         public async Task<IActionResult> GetNewsByCategoryID(int categoryId, int pageCount, int limit)
         {

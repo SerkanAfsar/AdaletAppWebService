@@ -35,6 +35,7 @@ builder.Services.AddSingleton<IAdaletMedyaRepository, AdaletMedyaRepository>();
 
 builder.Services.AddScoped<CustomFilterAttribute<Article>>();
 builder.Services.AddScoped<CustomFilterAttribute<Category>>();
+builder.Services.AddScoped<CustomFilterAttribute<CategorySource>>();
 builder.Services.AddScoped<CustomFilterAttribute<UserLoginViewModel>>();
 
 
@@ -82,7 +83,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options => options.AddPolicy("customPolicy", builder =>
 {
-    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
 }));
 
 

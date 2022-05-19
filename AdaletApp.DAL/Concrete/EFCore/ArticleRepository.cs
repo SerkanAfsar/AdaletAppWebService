@@ -11,6 +11,14 @@ namespace AdaletApp.DAL.Concrete.EFCore
 {
     public class ArticleRepository : Repository<AppDbContext, Article>, IArticleRepository
     {
+        public async Task<int> GetAllNewsCount()
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.CountAsync();
+            }
+        }
+
         public async Task<Article> GetArticleIncludeCategory(int NewsID)
         {
             using (var db = new AppDbContext())

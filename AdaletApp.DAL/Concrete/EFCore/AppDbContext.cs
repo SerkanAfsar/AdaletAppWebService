@@ -17,6 +17,7 @@ namespace AdaletApp.DAL.Concrete.EFCore
             optionsBuilder.UseSqlServer(Helper.MsSqlConnectionString);
         }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<CategorySource> CategorySource { get; set; }
         public DbSet<Article> Articles { get; set; }
     }
 }
