@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+   
+    [CustomAuthorize("RootAdmin")]
     [ServiceFilter(typeof(CustomFilterAttribute<Category>))]
     public class CategoriesController : Controller
     {
@@ -20,7 +21,6 @@ namespace AdaletApp.WEBAPI.Controllers
         }
         [AllowAnonymous]
         [HttpGet("GetCategory/{id}")]
-
         public async Task<IActionResult> GetCategory(int id)
         {
             var entity = HttpContext.Items["entity"] as Category;
@@ -28,9 +28,8 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
-        [AllowAnonymous]
-        [HttpGet("GetCategoryWithCategorySourceList/{id}")]
 
+        [HttpGet("GetCategoryWithCategorySourceList/{id}")]
         public async Task<IActionResult> GetCategoryWithCategorySourceList(int id)
         {
             var entity = HttpContext.Items["entity"] as Category;
@@ -39,10 +38,8 @@ namespace AdaletApp.WEBAPI.Controllers
         }
         [AllowAnonymous]
         [HttpGet("GetCategoryCount")]
-
         public async Task<IActionResult> GetCategoryCount()
         {
-
             return Ok(await _categoryRepository.GetAllCategoryCount());
         }
 
@@ -70,13 +67,13 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(responseResult);
         }
 
-        [HttpPut("UpdateCategory/{id}")]
+        [HttpPut("UpdateCategory/{id:int}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
         {
 
             var entity = HttpContext.Items["entity"] as Category;
+
             entity.Explanation = category.Explanation;
-            entity.SeoUrl = category.SeoUrl;
             entity.UpdateDate = DateTime.Now;
             entity.SeoKeywords = category.SeoKeywords;
             entity.Active = category.Active;

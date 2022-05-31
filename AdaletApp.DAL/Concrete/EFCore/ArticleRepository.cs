@@ -19,6 +19,14 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
+        public async Task<List<Article>> GetAllNewsOrderByIdDescending()
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.OrderByDescending(a => a.Id).ToListAsync();
+            }
+        }
+
         public async Task<Article> GetArticleIncludeCategory(int NewsID)
         {
             using (var db = new AppDbContext())

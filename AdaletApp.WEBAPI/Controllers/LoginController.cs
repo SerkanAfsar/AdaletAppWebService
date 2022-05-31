@@ -9,17 +9,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
-    [ServiceFilter(typeof(CustomFilterAttribute<UserLoginViewModel>))]
+    [CustomAuthorize("RootAdmin")]
+    [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterViewModel>))]
     public class LoginController : Controller
     {
         private readonly ILoginService loginService;
         private readonly UserManager<AppUser> userManager;
+        private readonly RoleManager<AppRole> roleManager;
+        private readonly ResponseResult<UserRegisterViewModel> responseResult;
 
-        public LoginController(ILoginService _loginService, UserManager<AppUser> _usermanager)
+        public LoginController(ILoginService _loginService, UserManager<AppUser> _usermanager, RoleManager<AppRole> roleManager)
         {
-            loginService = _loginService;
-            userManager = _usermanager;
+            this.loginService = _loginService;
+            this.userManager = _usermanager;
+            this.roleManager = roleManager;
+            this.responseResult = new ResponseResult<UserRegisterViewModel>();
+
         }
         [AllowAnonymous]
         [HttpPost("Login")]
@@ -29,32 +34,41 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(result);
         }
 
-        [AllowAnonymous]
+        [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterViewModel>))]
         [HttpPost("CreateUser")]
-        public async Task<IActionResult> CreateUser([FromBody] UserLoginViewModel model)
+        public async Task<IActionResult> CreateUser([FromBody] UserRegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState.Values.SelectMany(a => a.Errors).Select(a => a.ErrorMessage).ToList());
+                this.responseResult.ErrorList = ModelState.Values.SelectMany(a => a.Errors).Select(a => a.ErrorMessage).ToList();
+                return BadRequest(this.responseResult);
             }
 
             var appUser = new AppUser
             {
                 Email = model.EMail,
                 UserName = model.EMail,
-                NameSurname = "Serkan Afşar",
-
+                NameSurname = model.NameSurname
             };
             var result = await userManager.CreateAsync(appUser, model.Password);
             if (result.Succeeded)
             {
-                return Ok(appUser);
+                var roleResult = await userManager.AddToRoleAsync(appUser, model.RoleName);
+                if (roleResult.Succeeded)
+                {
+                    return Ok(model.EMail + " Oluşturuldu");
+                }
+                else
+                {
+                    this.responseResult.ErrorList = (roleResult.Errors.Select(a => a.Description).ToList());
+                    return BadRequest(this.responseResult);
+                }
 
             }
             else
             {
-
-                return BadRequest(result.Errors.Select(a => a.Description).ToList());
+                this.responseResult.ErrorList = (result.Errors.Select(a => a.Description).ToList());
+                return BadRequest(this.responseResult);
             }
 
         }

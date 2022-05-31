@@ -10,6 +10,7 @@ using AdaletApp.WEBAPI.Concrete;
 using AdaletApp.WEBAPI.Utilities;
 using AdaletApp.WEBAPI.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -31,12 +32,17 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddSingleton<IHukukiHaberRepository, HukukiHaberRepository>();
 builder.Services.AddSingleton<IAdaletBizRepository, AdaletBizRepository>();
 builder.Services.AddSingleton<IAdaletMedyaRepository, AdaletMedyaRepository>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
 builder.Services.AddScoped<CustomFilterAttribute<Article>>();
 builder.Services.AddScoped<CustomFilterAttribute<Category>>();
 builder.Services.AddScoped<CustomFilterAttribute<CategorySource>>();
 builder.Services.AddScoped<CustomFilterAttribute<UserLoginViewModel>>();
+builder.Services.AddScoped<CustomFilterAttribute<UserRegisterViewModel>>();
+builder.Services.AddScoped<CustomFilterAttribute<AppUser>>();
+builder.Services.AddScoped<CustomFilterAttribute<AppRole>>();
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
@@ -62,10 +68,8 @@ builder.Services.AddAuthentication(options =>
 {
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
-
     options.TokenValidationParameters = new TokenValidationParameters()
     {
-
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JWT:ValidAudience"],
@@ -75,9 +79,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
     };
 });
-
-
-
 
 builder.Services.AddAuthorization();
 
@@ -130,6 +131,7 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+
 
 app.UseAuthentication();
 

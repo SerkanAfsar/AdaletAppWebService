@@ -1,14 +1,16 @@
 ﻿using AdaletApp.DAL.Concrete.EFCore;
+using AdaletApp.Entities;
 using AdaletApp.WEBAPI.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
+using System.Security.Claims;
 
 namespace AdaletApp.WEBAPI.Utilities
 {
-    public class CustomFilterAttribute<T> : IActionFilter, IAuthorizationFilter, IExceptionFilter where T : class
+    public class CustomFilterAttribute<T> : IActionFilter, IExceptionFilter where T : class
     {
         private readonly ResponseResult<T> responseResult;
         private readonly AppDbContext appDbContext;
@@ -57,26 +59,7 @@ namespace AdaletApp.WEBAPI.Utilities
             }
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            //auth işlemi doğru olduğunda çalışır
 
-            var endpoint = context.HttpContext.GetEndpoint();
-            if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
-            {
-                return;
-            }
-            else
-            {
-                var IsAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
-                if (!IsAuthenticated)
-                {
-                    context.Result = new UnauthorizedObjectResult("Unauthorized.. Invalid EMail Or Password");
-                }
-
-            }
-
-        }
 
         public void OnException(ExceptionContext context)
         {

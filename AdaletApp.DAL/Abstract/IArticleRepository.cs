@@ -13,5 +13,6 @@ namespace AdaletApp.DAL.Abstract
         public Task<List<Article>> GetArticlesByCategoryIdLimit(int CategoryID, int pageNumber, int limit);
         public Task<Article> GetArticleIncludeCategory(int NewsID);
         public Task<int> GetAllNewsCount();
+        public Task<List<Article>> GetAllNewsOrderByIdDescending();
     }
 }

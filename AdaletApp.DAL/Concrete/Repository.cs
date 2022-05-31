@@ -20,6 +20,7 @@ namespace AdaletApp.DAL.Concrete
                 await db.SaveChangesAsync();
                 return entity;
             }
+
         }
 
         public async Task<T> Delete(T entity)

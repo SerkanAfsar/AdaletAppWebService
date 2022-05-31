@@ -11,7 +11,7 @@ namespace AdaletApp.Entities
         public int Id { get; set; }
         public DateTime? CreateDate { get; set; } = DateTime.Now;
         public DateTime? UpdateDate { get; set; }
-        public bool Active { get; set; } = false;
+        public bool Active { get; set; } = true;
         public int? Queue { get; set; }
     }
 }

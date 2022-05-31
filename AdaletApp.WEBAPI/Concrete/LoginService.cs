@@ -54,8 +54,15 @@ namespace AdaletApp.WEBAPI.Concrete
             claims.Add(new Claim("ID", user.Id));
             claims.Add(new Claim("UserName", user.NameSurname));
 
+            var roles = await userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
-            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var token = new JwtSecurityToken
             (
@@ -70,7 +77,7 @@ namespace AdaletApp.WEBAPI.Concrete
             var tokenKey = tokenHandler.WriteToken(token);
             this.responseResult.IsSuccess = true;
             this.responseResult.HasError = false;
-            this.responseResult.Entity = new TokenViewModel { Token = tokenKey, ExpireDate = DateTime.Now.AddDays(7) };
+            this.responseResult.Entity = new TokenViewModel { Token = tokenKey, ExpireDate = DateTime.Now.AddDays(7), NameSurname = user.NameSurname, EMail = user.Email };
             return responseResult;
 
         }

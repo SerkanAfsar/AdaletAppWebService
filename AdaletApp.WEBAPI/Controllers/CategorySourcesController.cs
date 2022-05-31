@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [CustomAuthorize("RootAdmin")]
+
     [ServiceFilter(typeof(CustomFilterAttribute<CategorySource>))]
     public class CategorySourcesController : Controller
     {
@@ -18,7 +19,7 @@ namespace AdaletApp.WEBAPI.Controllers
             categorySourceRepository = _categorySourceRepository;
             responseResult = new ResponseResult<CategorySource>();
         }
-        [AllowAnonymous]
+
         [HttpGet("GetCategorySource/{id}")]
         public IActionResult GetCategorySource(int id)
         {
@@ -26,7 +27,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = entity;
             return Ok(this.responseResult);
         }
-        [AllowAnonymous]
+
         [HttpGet("GetCategorySourceList/{CategoryID}")]
         public async Task<IActionResult> GetCategorySourceList(int? CategoryID = null)
         {
