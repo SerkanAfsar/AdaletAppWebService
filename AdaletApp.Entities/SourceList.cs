@@ -8,7 +8,7 @@ namespace AdaletApp.Entities
 {
     public enum SourceList
     {
-        HUKUKHABERLERI = 1,
+        HUKUKİHABER = 1,
         ADALETBIZ = 2,
         ADALETMEDYA = 3
     }

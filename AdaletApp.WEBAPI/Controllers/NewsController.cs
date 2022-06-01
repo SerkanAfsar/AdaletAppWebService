@@ -22,7 +22,6 @@ namespace AdaletApp.WEBAPI.Controllers
             this._categorySourceRepository = _categorySourceRepository;
             this.articleRepository = articleRepository;
             this.responseResult = new ResponseResult<Article>();
-
         }
 
         [AllowAnonymous]

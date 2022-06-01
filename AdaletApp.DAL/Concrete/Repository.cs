@@ -12,7 +12,7 @@ namespace AdaletApp.DAL.Concrete
     public class Repository<Context, T> : IRepository<T> where T : class
         where Context : DbContext, new()
     {
-        public async Task<T> Add(T entity)
+        public virtual async Task<T> Add(T entity)
         {
             using (var db = new Context())
             {
@@ -63,7 +63,7 @@ namespace AdaletApp.DAL.Concrete
             }
         }
 
-        public async Task<T> Update(T entity)
+        public virtual async Task<T> Update(T entity)
         {
             using (var db = new Context())
             {

@@ -93,7 +93,7 @@ namespace AdaletApp.DAL.Concrete
                             article.SeoUrl = Helper.KarakterDuzelt(title);
                             article.CategoryId = CategoryID;
                             article.SourceUrl = articleSourceUrl;
-                            article.Source = SourceList.HUKUKHABERLERI;
+                            article.Source = SourceList.HUKUKİHABER;
                             article.Active = true;
 
                             await this._articleRepository.Add(article);

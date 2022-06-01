@@ -8,7 +8,6 @@ namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
     [CustomAuthorize("RootAdmin")]
-
     [ServiceFilter(typeof(CustomFilterAttribute<CategorySource>))]
     public class CategorySourcesController : Controller
     {
@@ -31,9 +30,7 @@ namespace AdaletApp.WEBAPI.Controllers
         [HttpGet("GetCategorySourceList/{CategoryID}")]
         public async Task<IActionResult> GetCategorySourceList(int? CategoryID = null)
         {
-            this.responseResult.Entities = CategoryID == null ?
-                await categorySourceRepository.GetAll() :
-                await categorySourceRepository.GetAll(a => a.CategoryId == Convert.ToInt32(CategoryID));
+            this.responseResult.Entities = await categorySourceRepository.GetCategorySourceListIncludeCategory(CategoryID);
             return Ok(this.responseResult);
         }
         [HttpPost("AddCategorySource")]
@@ -51,6 +48,7 @@ namespace AdaletApp.WEBAPI.Controllers
             entity.CategoryId = model.CategoryId;
             entity.Source = model.Source;
             entity.SourceUrl = model.SourceUrl;
+
             this.responseResult.Entity = await categorySourceRepository.Update(entity);
             return Ok(responseResult);
         }
