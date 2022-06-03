@@ -21,23 +21,32 @@ namespace AdaletApp.DAL.Concrete
         }
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
         {
-            using (var client = new HttpClient())
+            try
             {
-                var document = await client.GetAsync(categorySourceUrl);
-                if (!document.IsSuccessStatusCode)
-                    return;
-
-                var doc = new HtmlDocument();
-                doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
-                var list = nodes.Reverse();
-                foreach (var node in list)
+                using (var client = new HttpClient())
                 {
-                    await AddArticleToDb(node.Attributes["href"]?.Value, CategoryID);
-                }
+                    var document = await client.GetAsync(categorySourceUrl);
+                    if (!document.IsSuccessStatusCode)
+                        return;
 
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(await document.Content.ReadAsStringAsync());
+
+                    HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
+                    var list = nodes.Reverse();
+                    List<Task> taskList = new List<Task>();
+                    foreach (var node in list)
+                    {
+                        taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+                    }
+                    Task.WaitAll(taskList.ToArray());
+                }
             }
+            catch (Exception)
+            {
+                return;
+            }
+
         }
         public async Task AddArticleToDb(string articleSourceUrl, int CategoryID)
         {
@@ -56,57 +65,60 @@ namespace AdaletApp.DAL.Concrete
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
                     HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@itemprop='name']");
-                    if (nodeTitle != null)
+                    if (nodeTitle == null)
+                        return;
+
+                    var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
+                    if (await _articleRepository.HasArticle(title) == true)
                     {
-                        var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
-                        if (await _articleRepository.HasArticle(title) == true)
+                        var article = new Article();
+                        article.Title = title;
+
+                        HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2[@itemprop='description']");
+                        if (subDesc != null)
                         {
-                            var article = new Article();
-                            article.Title = title;
-
-                            HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2[@itemprop='description']");
-                            if (subDesc != null)
-                            {
-                                article.SubTitle = HttpUtility.HtmlDecode(subDesc.InnerText);
-                            }
-                            HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@itemprop='articleBody']");
-                            if (nodeContent != null)
-                            {
-                                article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
-                            }
-
-                            HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
-                            if (pictureNode != null)
-                            {
-
-                                var picUrl = pictureNode.Attributes["src"]?.Value;
-                                var fileExt = Path.GetExtension(picUrl);
-                                var fileName = Helper.KarakterDuzelt(title) + fileExt;
-                                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
-                                var imageBytes = await client.GetByteArrayAsync(picUrl);
-                                await File.WriteAllBytesAsync(filePath, imageBytes);
-                                article.PictureUrl = fileName;
-
-
-                            }
-
-                            article.SeoUrl = Helper.KarakterDuzelt(title);
-                            article.CategoryId = CategoryID;
-                            article.SourceUrl = articleSourceUrl;
-                            article.Source = SourceList.HUKUKİHABER;
-                            article.Active = true;
-
-                            await this._articleRepository.Add(article);
+                            article.SubTitle = HttpUtility.HtmlDecode(subDesc.InnerText);
                         }
+                        HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@itemprop='articleBody']");
+                        if (nodeContent != null)
+                        {
+                            article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
+                        }
+
+                        HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
+                        if (pictureNode != null)
+                        {
+
+                            var picUrl = pictureNode.Attributes["src"]?.Value;
+                            var fileExt = Path.GetExtension(picUrl);
+                            var fileName = Helper.KarakterDuzelt(title) + fileExt;
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+                            var imageBytes = await client.GetByteArrayAsync(picUrl);
+                            await File.WriteAllBytesAsync(filePath, imageBytes);
+                            article.PictureUrl = fileName;
+
+
+                        }
+
+                        article.SeoUrl = Helper.KarakterDuzelt(title);
+                        article.CategoryId = CategoryID;
+                        article.SourceUrl = articleSourceUrl;
+                        article.Source = SourceList.HUKUKİHABER;
+                        article.Active = true;
+
+                        await this._articleRepository.Add(article);
+                        return;
                     }
 
                 }
-            }
 
-            catch (Exception ex)
+            }
+            catch (Exception)
             {
-
+                return;
             }
+
+
         }
     }
 }

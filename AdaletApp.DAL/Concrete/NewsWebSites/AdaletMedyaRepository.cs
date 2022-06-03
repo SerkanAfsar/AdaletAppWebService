@@ -19,24 +19,67 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
         {
             this._articleRepository = _articleRepository;
         }
+
+        public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
+        {
+            try
+            {
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+                using (var client = new HttpClient(clientHandler))
+                {
+                    var document = await client.GetAsync(categorySourceUrl);
+                    if (!document.IsSuccessStatusCode)
+                        return;
+
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(await document.Content.ReadAsStringAsync());
+
+                    HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//article[@class='tek_genis_fotolu_by_category1']//a");
+                    var list = nodes.Reverse();
+
+                    List<Task> taskList = new List<Task>();
+                    foreach (var node in list)
+                    {
+                        taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+                    }
+                    Task.WaitAll(taskList.ToArray());
+
+                }
+            }
+            catch (Exception)
+            {
+                return;
+            }
+         
+        }
+
         public async Task AddArticleToDb(string articleSourceUrl, int CategoryID)
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
-
-            using (var client = new HttpClient(clientHandler))
+            try
             {
-                var document = await client.GetAsync(articleSourceUrl);
-                if (!document.IsSuccessStatusCode)
-                    return;
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
-                var doc = new HtmlDocument();
-                doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@class='hbaslik pdlr-20']");
-                if (nodeTitle != null)
+                using (var client = new HttpClient(clientHandler))
                 {
+                    var document = await client.GetAsync(articleSourceUrl);
+                    if (!document.IsSuccessStatusCode)
+                        return;
+
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(await document.Content.ReadAsStringAsync());
+
+                    HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@class='hbaslik pdlr-20']");
+
+                    if (nodeTitle == null)
+                    {
+                        nodeTitle = doc.DocumentNode.SelectSingleNode("//div[@class='yazarin_yazi_basligi']");
+                    }
+                    if (nodeTitle == null)
+                        return;
                     var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
+                    title = !string.IsNullOrEmpty(title) ? title.Trim() : title;
                     if (await _articleRepository.HasArticle(title) == true)
                     {
                         var article = new Article();
@@ -79,34 +122,16 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
                         article.Source = SourceList.ADALETMEDYA;
                         article.Active = true;
                         await this._articleRepository.Add(article);
+                        return;
                     }
-
                 }
             }
-        }
-
-
-        public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
-        {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
-            using (var client = new HttpClient(clientHandler))
+            catch (Exception)
             {
-                var document = await client.GetAsync(categorySourceUrl);
-                if (!document.IsSuccessStatusCode)
-                    return;
-
-                var doc = new HtmlDocument();
-                doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//article[@class='tek_genis_fotolu_by_category1']//a");
-                var list = nodes.Reverse();
-                foreach (var node in list)
-                {
-                    await AddArticleToDb(node.Attributes["href"]?.Value, CategoryID);
-                }
-
+                return;
             }
+           
+
         }
     }
 }
