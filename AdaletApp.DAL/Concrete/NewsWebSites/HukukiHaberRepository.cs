@@ -21,31 +21,30 @@ namespace AdaletApp.DAL.Concrete
         }
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
         {
-            try
+            using (var client = new HttpClient())
             {
-                using (var client = new HttpClient())
+                var doc = new HtmlDocument();
+                try
                 {
                     var document = await client.GetAsync(categorySourceUrl);
                     if (!document.IsSuccessStatusCode)
                         return;
-
-                    var doc = new HtmlDocument();
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                    HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
-                    var list = nodes.Reverse();
-                    List<Task> taskList = new List<Task>();
-                    foreach (var node in list)
-                    {
-                        taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
-                    }
-                    Task.WaitAll(taskList.ToArray());
                 }
+                catch (Exception)
+                {
+                    return;
+                }
+                HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
+                var list = nodes.Reverse();
+                List<Task> taskList = new List<Task>();
+                foreach (var node in list)
+                {
+                    taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+                }
+                Task.WaitAll(taskList.ToArray());
             }
-            catch (Exception)
-            {
-                return;
-            }
+
 
         }
         public async Task AddArticleToDb(string articleSourceUrl, int CategoryID)
@@ -91,7 +90,7 @@ namespace AdaletApp.DAL.Concrete
 
                             var picUrl = pictureNode.Attributes["src"]?.Value;
                             var fileExt = Path.GetExtension(picUrl);
-                            var fileName = Helper.KarakterDuzelt(title) + fileExt;
+                            var fileName = Guid.NewGuid().ToString() + fileExt;
                             var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                             var imageBytes = await client.GetByteArrayAsync(picUrl);
                             await File.WriteAllBytesAsync(filePath, imageBytes);
@@ -107,7 +106,7 @@ namespace AdaletApp.DAL.Concrete
                         article.Active = true;
 
                         await this._articleRepository.Add(article);
-                        return;
+
                     }
 
                 }

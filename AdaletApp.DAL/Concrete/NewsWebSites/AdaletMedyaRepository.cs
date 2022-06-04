@@ -22,6 +22,8 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
 
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
         {
+            var doc = new HtmlDocument();
+
             try
             {
                 HttpClientHandler clientHandler = new HttpClientHandler();
@@ -31,28 +33,29 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
                     var document = await client.GetAsync(categorySourceUrl);
                     if (!document.IsSuccessStatusCode)
                         return;
-
-                    var doc = new HtmlDocument();
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                    HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//article[@class='tek_genis_fotolu_by_category1']//a");
-                    var list = nodes.Reverse();
-
-                    List<Task> taskList = new List<Task>();
-                    foreach (var node in list)
-                    {
-                        taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
-                    }
-                    Task.WaitAll(taskList.ToArray());
 
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return;
             }
-         
+
+            HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//article[@class='tek_genis_fotolu_by_category1']//a");
+            var list = nodes.Reverse();
+
+            List<Task> taskList = new List<Task>();
+            foreach (var node in list)
+            {
+                taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+            }
+            Task.WaitAll(taskList.ToArray());
+
         }
+
+
+
 
         public async Task AddArticleToDb(string articleSourceUrl, int CategoryID)
         {
@@ -110,7 +113,7 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
                         {
                             var picUrl = pictureNode.Attributes["src"]?.Value;
                             var fileExt = Path.GetExtension(picUrl);
-                            var fileName = Helper.KarakterDuzelt(title) + fileExt;
+                            var fileName = Guid.NewGuid().ToString() + fileExt;
                             var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                             var imageBytes = await client.GetByteArrayAsync(picUrl);
                             await File.WriteAllBytesAsync(filePath, imageBytes);
@@ -122,7 +125,7 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
                         article.Source = SourceList.ADALETMEDYA;
                         article.Active = true;
                         await this._articleRepository.Add(article);
-                        return;
+                        
                     }
                 }
             }
@@ -130,7 +133,7 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
             {
                 return;
             }
-           
+
 
         }
     }

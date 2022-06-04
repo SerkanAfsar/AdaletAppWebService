@@ -20,6 +20,7 @@ namespace AdaletApp.DAL.Concrete
         }
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
         {
+            var doc = new HtmlDocument();
             try
             {
                 HttpClientHandler clientHandler = new HttpClientHandler();
@@ -29,18 +30,7 @@ namespace AdaletApp.DAL.Concrete
                     var document = await client.GetAsync(categorySourceUrl);
                     if (!document.IsSuccessStatusCode)
                         return;
-
-                    var doc = new HtmlDocument();
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
-
-                    HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='span hs-item hs-beh hs-kill-ml clearfix']//a");
-                    var list = nodes.Reverse();
-                    List<Task> taskList = new List<Task>();
-                    foreach (var node in list)
-                    {
-                        taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
-                    }
-                    Task.WaitAll(taskList.ToArray());
 
                 }
             }
@@ -48,6 +38,18 @@ namespace AdaletApp.DAL.Concrete
             {
                 return;
             }
+
+            HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='span hs-item hs-beh hs-kill-ml clearfix']//a");
+            var list = nodes.Reverse();
+            List<Task> taskList = new List<Task>();
+            foreach (var node in list)
+            {
+                taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+            }
+            Task.WaitAll(taskList.ToArray());
+
+
+
 
         }
 
@@ -95,7 +97,7 @@ namespace AdaletApp.DAL.Concrete
 
                             var picUrl = pictureNode.Attributes["src"]?.Value;
                             var fileExt = Path.GetExtension(picUrl);
-                            var fileName = Helper.KarakterDuzelt(title) + fileExt;
+                            var fileName = Guid.NewGuid() + fileExt;
                             var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                             var imageBytes = await client.GetByteArrayAsync(picUrl);
                             await File.WriteAllBytesAsync(filePath, imageBytes);
@@ -108,7 +110,7 @@ namespace AdaletApp.DAL.Concrete
                         article.Source = SourceList.ADALETBIZ;
                         article.Active = true;
                         await this._articleRepository.Add(article);
-                        return;
+                        
                     }
                 }
             }
@@ -117,7 +119,7 @@ namespace AdaletApp.DAL.Concrete
 
                 return;
             }
-          
+
 
 
         }
