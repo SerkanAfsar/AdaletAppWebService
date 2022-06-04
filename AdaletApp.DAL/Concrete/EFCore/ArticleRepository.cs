@@ -23,7 +23,12 @@ namespace AdaletApp.DAL.Concrete.EFCore
         {
             using (var db = new AppDbContext())
             {
-                return await db.Articles.OrderByDescending(a => a.Id).ToListAsync();
+                return await db.Articles.OrderByDescending(a => a.Id).Select(a => new Article()
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    PictureUrl = a.PictureUrl
+                }).ToListAsync();
             }
         }
 

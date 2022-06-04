@@ -29,8 +29,6 @@ namespace AdaletApp.WEBAPI.Controllers
         [HttpGet("GetUserById/{userId}")]
         public async Task<IActionResult> GetUserById(string userId)
         {
-
-
             var user = await _userManager.FindByIdAsync(userId);
             if (user != null)
             {

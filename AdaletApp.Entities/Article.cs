@@ -22,6 +22,8 @@ namespace AdaletApp.Entities
         public Category? Category { get; set; }
         public SourceList Source { get; set; }
         public string? SeoUrl { get; set; }
+        [NotMapped]
+        public string CategoryName { get; set; }
         public int ReadCount { get; set; } = 1;
     }
 }
