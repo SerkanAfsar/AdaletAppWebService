@@ -12,5 +12,6 @@ namespace AdaletApp.DAL.Abstract
         public Task<List<Category>> GetMainPageCategories();
         public Task<Category> GetCategoryWithCategorySourceList(int CategoryID);
         public Task<int> GetAllCategoryCount();
+        public Task<Category> GetCategoryBySlug(string slug);
     }
 }

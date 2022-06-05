@@ -19,6 +19,14 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
+        public async Task<Category> GetCategoryBySlug(string slug)
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Categories.FirstOrDefaultAsync(a => a.SeoUrl == slug);
+            }
+        }
+
         public async Task<Category> GetCategoryWithCategorySourceList(int CategoryID)
         {
             using (var db = new AppDbContext())

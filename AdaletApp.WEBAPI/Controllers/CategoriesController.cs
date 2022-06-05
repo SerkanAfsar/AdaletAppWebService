@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
-   
+
     [CustomAuthorize("RootAdmin")]
     [ServiceFilter(typeof(CustomFilterAttribute<Category>))]
     public class CategoriesController : Controller
@@ -48,6 +48,14 @@ namespace AdaletApp.WEBAPI.Controllers
         public async Task<IActionResult> GetCategoryList()
         {
             this.responseResult.Entities = await _categoryRepository.GetAll();
+            return Ok(this.responseResult);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetCategoryBySlug/{slug}")]
+        public async Task<IActionResult> GetCategoryBySlug(string slug)
+        {
+            this.responseResult.Entity = await _categoryRepository.GetCategoryBySlug(slug);
             return Ok(this.responseResult);
         }
 
