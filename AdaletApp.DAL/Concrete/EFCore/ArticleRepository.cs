@@ -27,7 +27,10 @@ namespace AdaletApp.DAL.Concrete.EFCore
                 {
                     Id = a.Id,
                     Title = a.Title,
-                    PictureUrl = a.PictureUrl
+                    PictureUrl = a.PictureUrl,
+                    CategoryName = a.Category.CategoryName,
+                    CategorySeoUrl = a.Category.SeoUrl,
+                    SeoUrl = a.SeoUrl
                 }).ToListAsync();
             }
         }
@@ -46,6 +49,23 @@ namespace AdaletApp.DAL.Concrete.EFCore
             {
                 return await db.Articles.Where(a => a.CategoryId == CategoryID).OrderByDescending(a => a.CreateDate).Skip(pageNumber * limit).Take(limit).ToListAsync();
 
+            }
+        }
+
+        public async Task<List<Article>> GetLastFourNews()
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.OrderByDescending(a => a.Id).Take(4).Select(a => new Article
+                {
+                    Id = a.Id,
+                    CreateDate = a.CreateDate,
+                    Title = a.Title,
+                    SeoUrl = a.SeoUrl,
+                    PictureUrl = a.PictureUrl,
+                    CategoryName = a.Category.CategoryName,
+                    CategorySeoUrl = a.Category.SeoUrl
+                }).ToListAsync();
             }
         }
 

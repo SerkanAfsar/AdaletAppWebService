@@ -53,6 +53,17 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entities = await articleRepository.GetAllNewsOrderByIdDescending();
             return Ok(this.responseResult);
         }
+
+
+        [AllowAnonymous]
+        [HttpGet("GetLastFourNews")]
+        public async Task<IActionResult> GetLastFourNews()
+        {
+            this.responseResult.Entities = await articleRepository.GetLastFourNews();
+            return Ok(this.responseResult);
+        }
+
+
         [AllowAnonymous]
         [HttpGet("GetNewsByCategoryIDPager/{categoryId}/{pageCount}/{limit}")]
         public async Task<IActionResult> GetNewsByCategoryID(int categoryId, int pageCount, int limit)

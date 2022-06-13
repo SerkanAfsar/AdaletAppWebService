@@ -41,7 +41,20 @@ namespace AdaletApp.DAL.Concrete.EFCore
             {
                 var list = await db.Categories
                     .Where(a => a.MainPageCategory == true)
-                    .OrderBy(a => a.Queue).Select(a => new Category() { Articles = a.Articles.OrderByDescending(b => b.CreateDate).Take(5).ToList() }).ToListAsync();
+                    .OrderBy(a => a.Queue).Select(a => new Category()
+                    {
+                        CategoryName = a.CategoryName,
+                        Id = a.Id,
+                        Articles = a.Articles.OrderByDescending(b => b.CreateDate).Select(article => new Article
+                        {
+                            Id = article.Id,
+                            Title = article.Title,
+                            SeoUrl = article.SeoUrl,
+                            CategorySeoUrl = a.SeoUrl,
+                            CategoryName = a.CategoryName,
+                            SubTitle = article.SubTitle
+                        }).Take(5).ToList()
+                    }).ToListAsync();
                 return list;
             }
         }
