@@ -52,8 +52,9 @@ namespace AdaletApp.DAL.Concrete.EFCore
                             SeoUrl = article.SeoUrl,
                             CategorySeoUrl = a.SeoUrl,
                             CategoryName = a.CategoryName,
-                            SubTitle = article.SubTitle
-                        }).Take(5).ToList()
+                            SubTitle = article.SubTitle,
+                            PictureUrl = article.PictureUrl,
+                        }).Take(3).ToList()
                     }).ToListAsync();
                 return list;
             }
