@@ -1,11 +1,6 @@
 ﻿using AdaletApp.DAL.Abstract;
 using AdaletApp.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdaletApp.DAL.Concrete.EFCore
 {
@@ -28,8 +23,6 @@ namespace AdaletApp.DAL.Concrete.EFCore
                     Id = a.Id,
                     Title = a.Title,
                     PictureUrl = a.PictureUrl,
-                    CategoryName = a.Category.CategoryName,
-                    CategorySeoUrl = a.Category.SeoUrl,
                     SeoUrl = a.SeoUrl
                 }).ToListAsync();
             }
@@ -63,8 +56,6 @@ namespace AdaletApp.DAL.Concrete.EFCore
                     Title = a.Title,
                     SeoUrl = a.SeoUrl,
                     PictureUrl = a.PictureUrl,
-                    CategoryName = a.Category.CategoryName,
-                    CategorySeoUrl = a.Category.SeoUrl
                 }).ToListAsync();
             }
         }

@@ -2,11 +2,6 @@
 using AdaletApp.DAL.Abstract.NewsWebSites;
 using AdaletApp.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdaletApp.DAL.Concrete.EFCore
 {
@@ -33,13 +28,17 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
-        public async Task<List<CategorySource>> GetCategorySourceListIncludeCategory(int? CategoryID = null)
+
+
+
+
+        public async Task<List<CategorySource>> GetCategorySourceList(int? CategoryID = null, int pageNumber = 1, int limitCount = 10)
         {
             using (var db = new AppDbContext())
             {
                 return CategoryID != null ?
-                    await db.CategorySource.Where(a => a.CategoryId == CategoryID).Include(a => a.Category).ToListAsync() :
-                    await db.CategorySource.Include(a => a.Category).ToListAsync();
+                    await db.CategorySource.Where(a => a.CategoryId == CategoryID).Skip((pageNumber - 1) * limitCount).Take(limitCount).Include(a => a.Category).ToListAsync() :
+                    await db.CategorySource.Skip((pageNumber - 1) * limitCount).Take(limitCount).Include(a => a.Category).ToListAsync();
             }
         }
         public override async Task<CategorySource> Add(CategorySource entity)
@@ -92,6 +91,8 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
 
         }
+
+
     }
 }
 

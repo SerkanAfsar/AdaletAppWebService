@@ -71,6 +71,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entities = await articleRepository.GetArticlesByCategoryIdLimit(categoryId, pageCount, limit);
             return Ok(this.responseResult);
         }
+
         [HttpPost("AddArticle")]
         public async Task<IActionResult> AddActicle([FromForm] UpdateArticleViewModel model)
         {

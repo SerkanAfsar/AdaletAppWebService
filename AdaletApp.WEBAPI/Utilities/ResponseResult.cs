@@ -10,6 +10,7 @@ namespace AdaletApp.WEBAPI.Utilities
         public bool HasError { get; set; }
         public List<string> ErrorList { get; set; }
         public HttpStatusCode StatusCode { get; set; }
+        public int TotalCount { get; set; } = 0;
         public ResponseResult()
         {
             this.Entities = new List<T>();
@@ -18,6 +19,7 @@ namespace AdaletApp.WEBAPI.Utilities
             this.HasError = false;
             this.ErrorList = new List<string>();
             this.StatusCode = HttpStatusCode.OK;
+            this.TotalCount = 0;
         }
     }
 }

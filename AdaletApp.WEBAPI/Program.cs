@@ -10,7 +10,6 @@ using AdaletApp.WEBAPI.Concrete;
 using AdaletApp.WEBAPI.Utilities;
 using AdaletApp.WEBAPI.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -86,6 +85,8 @@ builder.Services.AddCors(options => options.AddPolicy("customPolicy", builder =>
 {
     builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
 }));
+builder.Services.AddControllers(x => x.AllowEmptyInputInBodyModelBinding = true);
+
 
 
 builder.Services.AddSwaggerGen(c =>

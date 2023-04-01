@@ -1,12 +1,6 @@
 ﻿using AdaletApp.DAL.Concrete.EFCore;
-using AdaletApp.Entities;
-using AdaletApp.WEBAPI.Abstract;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Net;
-using System.Security.Claims;
 
 namespace AdaletApp.WEBAPI.Utilities
 {

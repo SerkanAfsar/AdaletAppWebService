@@ -21,6 +21,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult = new ResponseResult<AppRole>();
 
         }
+        [AllowAnonymous]
         [HttpGet("CreateAllRoles")]
         public async Task<IActionResult> CreateAllRoles()
         {

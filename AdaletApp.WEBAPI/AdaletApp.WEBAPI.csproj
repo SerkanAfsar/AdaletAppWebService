@@ -14,12 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Images\" />
+    <ProjectReference Include="..\AdaletApp.DAL\AdaletApp.DAL.csproj" />
+    <ProjectReference Include="..\AdaletApp.Entities\AdaletApp.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AdaletApp.DAL\AdaletApp.DAL.csproj" />
-    <ProjectReference Include="..\AdaletApp.Entities\AdaletApp.Entities.csproj" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
 </Project>

@@ -34,6 +34,7 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterViewModel>))]
         [HttpPost("CreateUser")]
         public async Task<IActionResult> CreateUser([FromBody] UserRegisterViewModel model)
@@ -60,6 +61,7 @@ namespace AdaletApp.WEBAPI.Controllers
                 }
                 else
                 {
+                    await userManager.DeleteAsync(appUser);
                     this.responseResult.ErrorList = (roleResult.Errors.Select(a => a.Description).ToList());
                     return BadRequest(this.responseResult);
                 }

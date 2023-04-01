@@ -1,23 +1,11 @@
 ﻿using AdaletApp.DAL.Abstract;
 using AdaletApp.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdaletApp.DAL.Concrete.EFCore
 {
     public class CategoryRepository : Repository<AppDbContext, Category>, ICategoryRepository
     {
-        public async Task<int> GetAllCategoryCount()
-        {
-            using (var db = new AppDbContext())
-            {
-                return await db.Categories.CountAsync();
-            }
-        }
 
         public async Task<Category> GetCategoryBySlug(string slug)
         {
@@ -50,8 +38,6 @@ namespace AdaletApp.DAL.Concrete.EFCore
                             Id = article.Id,
                             Title = article.Title,
                             SeoUrl = article.SeoUrl,
-                            CategorySeoUrl = a.SeoUrl,
-                            CategoryName = a.CategoryName,
                             SubTitle = article.SubTitle,
                             PictureUrl = article.PictureUrl,
                         }).Take(3).ToList()

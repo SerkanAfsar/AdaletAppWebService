@@ -28,7 +28,7 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
-
+        [AllowAnonymous]
         [HttpGet("GetCategoryWithCategorySourceList/{id}")]
         public async Task<IActionResult> GetCategoryWithCategorySourceList(int id)
         {
@@ -36,12 +36,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await _categoryRepository.GetCategoryWithCategorySourceList(id);
             return Ok(this.responseResult);
         }
-        [AllowAnonymous]
-        [HttpGet("GetCategoryCount")]
-        public async Task<IActionResult> GetCategoryCount()
-        {
-            return Ok(await _categoryRepository.GetAllCategoryCount());
-        }
+
 
         [AllowAnonymous]
         [HttpGet("GetCategoryList")]
@@ -50,6 +45,16 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entities = await _categoryRepository.GetAll();
             return Ok(this.responseResult);
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetCategoryListByPagination/{pageSize}/{limitCount}")]
+        public async Task<IActionResult> GetCategoryList(int pageSize, int limitCount)
+        {
+            this.responseResult.Entities = await _categoryRepository.GetEntitesByPagination(predicate: null, pageSize, limitCount);
+            this.responseResult.TotalCount = await _categoryRepository.GetEntityCount();
+            return Ok(this.responseResult);
+        }
+
 
         [AllowAnonymous]
         [HttpGet("GetCategoryBySlug/{slug}")]
@@ -70,7 +75,6 @@ namespace AdaletApp.WEBAPI.Controllers
         [HttpPost("AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
-            category.SeoUrl = FriendlySeoUrl.KarakterDuzelt(category.CategoryName);
             this.responseResult.Entity = await _categoryRepository.Add(category);
             return Ok(responseResult);
         }
@@ -103,7 +107,5 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await _categoryRepository.Delete(entity);
             return Ok(this.responseResult);
         }
-
-
     }
 }

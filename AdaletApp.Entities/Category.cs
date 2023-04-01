@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AdaletApp.Entities
 {
     public class Category : BaseEntity
     {
+        [Required(ErrorMessage = "Category Name Required")]
         public string CategoryName { get; set; }
         public string SeoTitle { get; set; }
         public string SeoDescription { get; set; }

@@ -58,7 +58,6 @@ namespace AdaletApp.WEBAPI.Concrete
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
-
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
@@ -71,7 +70,6 @@ namespace AdaletApp.WEBAPI.Concrete
                  claims,
                  expires: DateTime.UtcNow.AddDays(7),
                  signingCredentials: signIn
-
             );
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenKey = tokenHandler.WriteToken(token);

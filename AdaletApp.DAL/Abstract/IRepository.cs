@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace AdaletApp.DAL.Abstract
 {
@@ -15,5 +10,8 @@ namespace AdaletApp.DAL.Abstract
         Task<T> Get(int id);
         Task<List<T>> GetAll(Expression<Func<T, bool>> predicate = null);
         Task DeleteAll(Expression<Func<T, bool>> predicate = null);
+
+        Task<List<T>> GetEntitesByPagination(Expression<Func<T, bool>> predicate = null, int pageNumber = 1, int limitCount = 10);
+        Task<int> GetEntityCount();
     }
 }

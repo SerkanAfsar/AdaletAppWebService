@@ -1,11 +1,6 @@
 ﻿using AdaletApp.DAL.Abstract;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdaletApp.DAL.Concrete
 {
@@ -60,6 +55,23 @@ namespace AdaletApp.DAL.Concrete
             using (var db = new Context())
             {
                 return predicate == null ? await db.Set<T>().ToListAsync() : await db.Set<T>().Where(predicate).ToListAsync();
+            }
+        }
+
+        public async Task<List<T>> GetEntitesByPagination(Expression<Func<T, bool>> predicate = null, int pageNumber = 1, int limitCount = 10)
+        {
+            using (var db = new Context())
+            {
+                return predicate == null ? await db.Set<T>().Skip((pageNumber - 1) * limitCount).Take(limitCount).ToListAsync() :
+                    await db.Set<T>().Where(predicate).Skip((pageNumber - 1) * limitCount).Take(limitCount).ToListAsync();
+            }
+        }
+
+        public async Task<int> GetEntityCount()
+        {
+            using (var db = new Context())
+            {
+                return await db.Set<T>().CountAsync();
             }
         }
 

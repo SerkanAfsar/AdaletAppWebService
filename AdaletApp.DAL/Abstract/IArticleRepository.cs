@@ -1,9 +1,4 @@
 ﻿using AdaletApp.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdaletApp.DAL.Abstract
 {
@@ -15,6 +10,7 @@ namespace AdaletApp.DAL.Abstract
         public Task<int> GetAllNewsCount();
         public Task<List<Article>> GetAllNewsOrderByIdDescending();
         public Task<List<Article>> GetLastFourNews();
-        
+
+
     }
 }

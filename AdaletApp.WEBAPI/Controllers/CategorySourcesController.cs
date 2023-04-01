@@ -3,6 +3,7 @@ using AdaletApp.Entities;
 using AdaletApp.WEBAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace AdaletApp.WEBAPI.Controllers
 {
@@ -19,26 +20,46 @@ namespace AdaletApp.WEBAPI.Controllers
             responseResult = new ResponseResult<CategorySource>();
         }
 
+        [AllowAnonymous]
         [HttpGet("GetCategorySource/{id}")]
-        public IActionResult GetCategorySource(int id)
+        public async Task<IActionResult> GetCategorySource(int id)
         {
-            var entity = HttpContext.Items["entity"] as CategorySource;
+            //var entity = HttpContext.Items["entity"] as CategorySource;
+            //this.responseResult.Entity = entity;
+
+            var entity = await categorySourceRepository.GetCategorySourceIncludeCategoryById(id);
+            if (entity == null)
+            {
+                this.responseResult.ErrorList.Add("Entity Not Found");
+                this.responseResult.StatusCode = HttpStatusCode.NotFound;
+                this.responseResult.HasError = true;
+                this.responseResult.IsSuccess = false;
+                this.responseResult.Entities = null;
+                return NotFound(this.responseResult);
+            }
             this.responseResult.Entity = entity;
             return Ok(this.responseResult);
         }
 
-        [HttpGet("GetCategorySourceList/{CategoryID}")]
-        public async Task<IActionResult> GetCategorySourceList(int? CategoryID = null)
+
+
+        [AllowAnonymous]
+        [HttpGet("GetCategorySourceList")]
+        public async Task<IActionResult> GetCategorySourceList([FromQuery] int? CategoryID = null, [FromQuery] int pageSize = 1, [FromQuery] int limitCount = 10)
         {
-            this.responseResult.Entities = await categorySourceRepository.GetCategorySourceListIncludeCategory(CategoryID);
+            this.responseResult.Entities = await categorySourceRepository.GetCategorySourceList(CategoryID, pageSize, limitCount);
+
             return Ok(this.responseResult);
         }
+
+
         [HttpPost("AddCategorySource")]
         public async Task<IActionResult> AddCategorySource([FromBody] CategorySource categorySource)
         {
             this.responseResult.Entity = await categorySourceRepository.Add(categorySource);
             return Ok(this.responseResult);
         }
+        [AllowAnonymous]
         [HttpPut("UpdateCategorySource/{id}")]
         public async Task<IActionResult> UpdateCategorySource(int id, [FromBody] CategorySource model)
         {
