@@ -8,10 +8,11 @@ namespace AdaletApp.DAL.Abstract
         Task<T> Update(T entity);
         Task<T> Delete(T entity);
         Task<T> Get(int id);
+        Task<T> Get(Expression<Func<T, bool>> predicate = null);
         Task<List<T>> GetAll(Expression<Func<T, bool>> predicate = null);
         Task DeleteAll(Expression<Func<T, bool>> predicate = null);
 
         Task<List<T>> GetEntitesByPagination(Expression<Func<T, bool>> predicate = null, int pageNumber = 1, int limitCount = 10);
-        Task<int> GetEntityCount();
+        Task<int> GetEntityCount(Expression<Func<T, bool>> predicate = null);
     }
 }

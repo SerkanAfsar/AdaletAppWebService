@@ -2,11 +2,6 @@
 using AdaletApp.DAL.Utilites;
 using AdaletApp.Entities;
 using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace AdaletApp.DAL.Concrete
@@ -29,7 +24,10 @@ namespace AdaletApp.DAL.Concrete
                 {
                     var document = await client.GetAsync(categorySourceUrl);
                     if (!document.IsSuccessStatusCode)
+                    {
                         return;
+                    }
+
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
                 }
@@ -40,17 +38,16 @@ namespace AdaletApp.DAL.Concrete
             }
 
             HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='span hs-item hs-beh hs-kill-ml clearfix']//a");
-            var list = nodes.Reverse();
-            List<Task> taskList = new List<Task>();
-            foreach (var node in list)
+            if (nodes != null)
             {
-                taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+                var list = nodes.Reverse();
+                List<Task> taskList = new List<Task>();
+                foreach (var node in list)
+                {
+                    taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+                }
+                Task.WaitAll(taskList.ToArray());
             }
-            Task.WaitAll(taskList.ToArray());
-
-
-
-
         }
 
         public async Task AddArticleToDb(string articleSourceUrl, int CategoryID)
@@ -65,25 +62,34 @@ namespace AdaletApp.DAL.Concrete
                 {
                     var document = await client.GetAsync(articleSourceUrl);
                     if (!document.IsSuccessStatusCode)
+                    {
                         return;
+                    }
 
                     var doc = new HtmlDocument();
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
                     HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@class='title hs-share-title hs-title-font-2']");
                     if (nodeTitle == null)
+                    {
                         return;
+                    }
 
                     var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
                     if (await _articleRepository.HasArticle(title) == true)
                     {
                         var article = new Article();
                         article.Title = title;
+                        var seotitle = Utils.KarakterDuzelt(title);
 
                         HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//p[@class='lead hs-head-font']");
                         if (subDesc != null)
                         {
                             article.SubTitle = HttpUtility.HtmlDecode(subDesc.InnerText);
+                        }
+                        else
+                        {
+                            article.SubTitle = title;
                         }
                         HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@id='newsbody']");
                         if (nodeContent != null)
@@ -97,20 +103,20 @@ namespace AdaletApp.DAL.Concrete
 
                             var picUrl = pictureNode.Attributes["src"]?.Value;
                             var fileExt = Path.GetExtension(picUrl);
-                            var fileName = Guid.NewGuid() + fileExt;
+                            var fileName = seotitle + fileExt;
                             var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                             var imageBytes = await client.GetByteArrayAsync(picUrl);
                             await File.WriteAllBytesAsync(filePath, imageBytes);
                             article.PictureUrl = fileName;
 
                         }
-                        article.SeoUrl = Helper.KarakterDuzelt(title);
+                        article.SeoUrl = seotitle;
                         article.CategoryId = CategoryID;
                         article.SourceUrl = articleSourceUrl;
                         article.Source = SourceList.ADALETBIZ;
                         article.Active = true;
                         await this._articleRepository.Add(article);
-                        
+
                     }
                 }
             }

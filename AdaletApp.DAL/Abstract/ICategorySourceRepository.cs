@@ -9,5 +9,7 @@ namespace AdaletApp.DAL.Abstract
         Task<CategorySource> GetCategorySourceIncludeCategoryById(int CategorySourceId);
 
 
+
+
     }
 }

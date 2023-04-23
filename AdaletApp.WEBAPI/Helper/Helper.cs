@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
-namespace AdaletApp.DAL.Utilites
+namespace AdaletApp.WEBAPI.Helper
 {
     public static class Helper
     {
-        public static string MsSqlConnectionString { get; set; } = @"Data Source=.\SQLEXPRESS;Initial Catalog=db_AdaletHaberleri;Integrated Security=True";
-
         public static string KarakterDuzelt(string s)
         {
             s = s.ToLower();
-            if (string.IsNullOrEmpty(s)) return "";
-            if (s.Length > 200)
-                s = s.Substring(0, 200);
+            if (string.IsNullOrEmpty(s))
+            {
+                return "";
+            }
+
+            if (s.Length > 150)
+            {
+                s = s.Substring(0, 150);
+            }
+
             s = s.Replace("ş", "s");
             s = s.Replace("Ş", "S");
             s = s.Replace("ğ", "g");
@@ -35,13 +35,25 @@ namespace AdaletApp.DAL.Utilites
             //if (r.IsMatch(s))
             s = r.Replace(s, "-");
             if (!string.IsNullOrEmpty(s))
+            {
                 while (s.IndexOf("--") > -1)
+                {
                     s = s.Replace("--", "-");
-            if (s.StartsWith("-")) s = s.Substring(1);
-            if (s.EndsWith("-")) s = s.Substring(0, s.Length - 1);
+                }
+            }
+
+            if (s.StartsWith("-"))
+            {
+                s = s.Substring(1);
+            }
+
+            if (s.EndsWith("-"))
+            {
+                s = s.Substring(0, s.Length - 1);
+            }
+
             return s;
 
         }
-
     }
 }

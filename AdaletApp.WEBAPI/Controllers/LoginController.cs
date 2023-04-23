@@ -16,13 +16,15 @@ namespace AdaletApp.WEBAPI.Controllers
         private readonly ILoginService loginService;
         private readonly UserManager<AppUser> userManager;
         private readonly RoleManager<AppRole> roleManager;
+        private readonly SignInManager<AppUser> signInManager;
         private readonly ResponseResult<UserRegisterViewModel> responseResult;
 
-        public LoginController(ILoginService _loginService, UserManager<AppUser> _usermanager, RoleManager<AppRole> roleManager)
+        public LoginController(ILoginService _loginService, UserManager<AppUser> _usermanager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager)
         {
             this.loginService = _loginService;
             this.userManager = _usermanager;
             this.roleManager = roleManager;
+            this.signInManager = signInManager;
             this.responseResult = new ResponseResult<UserRegisterViewModel>();
 
         }
@@ -73,6 +75,13 @@ namespace AdaletApp.WEBAPI.Controllers
                 return BadRequest(this.responseResult);
             }
 
+        }
+
+        [HttpPost("LogOut")]
+        public async Task<IActionResult> LogOut()
+        {
+            await signInManager.SignOutAsync();
+            return Ok(this.responseResult);
         }
     }
 }

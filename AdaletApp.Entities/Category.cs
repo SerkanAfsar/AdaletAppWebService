@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdaletApp.Entities
 {
@@ -14,5 +15,14 @@ namespace AdaletApp.Entities
         public string? SeoUrl { get; set; }
         public List<CategorySource>? CategorySourceList { get; set; } = new List<CategorySource>();
         public List<Article>? Articles { get; set; } = new List<Article>();
+        [NotMapped]
+        public int? ArticleCount { get; set; }
+        [NotMapped]
+        public List<string> NewsPictures { get; set; } = new List<string>();
+
+        [NotMapped]
+        public List<Article> LatestNews { get; set; } = new List<Article>();
+        [NotMapped]
+        public List<Article> PopularNews { get; set; } = new List<Article>();
     }
 }

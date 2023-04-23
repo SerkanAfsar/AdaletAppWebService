@@ -28,6 +28,7 @@ builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
 builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
 builder.Services.AddSingleton<ICategorySourceRepository, CategorySourceRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddSingleton<IHukukiHaberRepository, HukukiHaberRepository>();
 builder.Services.AddSingleton<IAdaletBizRepository, AdaletBizRepository>();
 builder.Services.AddSingleton<IAdaletMedyaRepository, AdaletMedyaRepository>();

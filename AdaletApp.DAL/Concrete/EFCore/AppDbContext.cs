@@ -14,7 +14,7 @@ namespace AdaletApp.DAL.Concrete.EFCore
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(Helper.MsSqlConnectionString);
+            optionsBuilder.UseSqlServer(Utils.MsSqlConnectionString);
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategorySource> CategorySource { get; set; }

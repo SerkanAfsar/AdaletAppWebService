@@ -2,12 +2,6 @@
 using AdaletApp.DAL.Utilites;
 using AdaletApp.Entities;
 using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace AdaletApp.DAL.Concrete
@@ -28,21 +22,33 @@ namespace AdaletApp.DAL.Concrete
                 {
                     var document = await client.GetAsync(categorySourceUrl);
                     if (!document.IsSuccessStatusCode)
+                    {
                         return;
+                    }
+
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
                 }
                 catch (Exception)
                 {
                     return;
                 }
-                HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='yatayhaberler']//div[@class='span4']//a");
-                var list = nodes.Reverse();
-                List<Task> taskList = new List<Task>();
-                foreach (var node in list)
+                HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//div[@class='card-body p-3']//h4//a");
+                if (nodes != null)
                 {
-                    taskList.Add(AddArticleToDb(node.Attributes["href"]?.Value, CategoryID));
+                    var list = nodes.Reverse();
+                    List<Task> taskList = new List<Task>();
+                    foreach (var node in list)
+                    {
+                        var nodeUrl = node.Attributes["href"]?.Value;
+                        if (nodeUrl != null)
+                        {
+                            taskList.Add(AddArticleToDb(nodeUrl.IndexOf("https://www.hukukihaber.net") > -1 ? nodeUrl : "https://www.hukukihaber.net" + nodeUrl, CategoryID));
+                        }
+
+                    }
+                    Task.WaitAll(taskList.ToArray());
                 }
-                Task.WaitAll(taskList.ToArray());
+
             }
 
 
@@ -58,14 +64,18 @@ namespace AdaletApp.DAL.Concrete
                 {
                     var document = await client.GetAsync(articleSourceUrl);
                     if (!document.IsSuccessStatusCode)
+                    {
                         return;
+                    }
 
                     var doc = new HtmlDocument();
                     doc.LoadHtml(await document.Content.ReadAsStringAsync());
 
-                    HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1[@itemprop='name']");
+                    HtmlNode nodeTitle = doc.DocumentNode.SelectSingleNode("//h1");
                     if (nodeTitle == null)
+                    {
                         return;
+                    }
 
                     var title = HttpUtility.HtmlDecode(nodeTitle.InnerText);
                     if (await _articleRepository.HasArticle(title) == true)
@@ -73,33 +83,45 @@ namespace AdaletApp.DAL.Concrete
                         var article = new Article();
                         article.Title = title;
 
-                        HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2[@itemprop='description']");
+
+                        var seoTitle = Utils.KarakterDuzelt(title);
+                        HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2");
                         if (subDesc != null)
                         {
                             article.SubTitle = HttpUtility.HtmlDecode(subDesc.InnerText);
                         }
-                        HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@itemprop='articleBody']");
+                        else
+                        {
+                            article.SubTitle = title;
+                        }
+                        HtmlNode nodeContent = doc.DocumentNode.SelectSingleNode("//div[@class='article-text text-black container-padding']");
                         if (nodeContent != null)
                         {
+                            HtmlNodeCollection reklamNode = nodeContent.SelectNodes("//div[@data-pagespeed='true']");
+                            if (reklamNode != null)
+                            {
+                                reklamNode.ToList().ForEach(node =>
+                                {
+                                    node.Remove();
+                                });
+                            }
                             article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
                         }
 
-                        HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
+                        HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='inner']//img");
                         if (pictureNode != null)
                         {
-
                             var picUrl = pictureNode.Attributes["src"]?.Value;
                             var fileExt = Path.GetExtension(picUrl);
-                            var fileName = Guid.NewGuid().ToString() + fileExt;
+                            var fileName = seoTitle + fileExt;
                             var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                             var imageBytes = await client.GetByteArrayAsync(picUrl);
                             await File.WriteAllBytesAsync(filePath, imageBytes);
                             article.PictureUrl = fileName;
 
-
                         }
 
-                        article.SeoUrl = Helper.KarakterDuzelt(title);
+                        article.SeoUrl = seoTitle;
                         article.CategoryId = CategoryID;
                         article.SourceUrl = articleSourceUrl;
                         article.Source = SourceList.HUKUKİHABER;
@@ -115,6 +137,7 @@ namespace AdaletApp.DAL.Concrete
             catch (Exception)
             {
                 return;
+
             }
 
 

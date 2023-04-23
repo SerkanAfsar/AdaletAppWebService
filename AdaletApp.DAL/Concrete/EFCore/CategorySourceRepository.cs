@@ -66,29 +66,31 @@ namespace AdaletApp.DAL.Concrete.EFCore
         {
             var list = new List<string>();
             var result = await this.GetAll(null);
+            var taskList = new List<Task>();
             foreach (var item in result)
             {
                 switch (item.Source)
                 {
                     case SourceList.HUKUKİHABER:
                         {
-                            await this.hukukiHaberRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                            taskList.Add(this.hukukiHaberRepository.ArticleSourceList(item.SourceUrl, item.CategoryId));
                             break;
                         }
                     case SourceList.ADALETBIZ:
                         {
-                            await this.adaletBizRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                            taskList.Add(this.adaletBizRepository.ArticleSourceList(item.SourceUrl, item.CategoryId));
                             break;
                         }
                     case SourceList.ADALETMEDYA:
                         {
-                            await this.adaletMedyaRepository.ArticleSourceList(item.SourceUrl, item.CategoryId);
+                            taskList.Add(this.adaletMedyaRepository.ArticleSourceList(item.SourceUrl, item.CategoryId));
                             break;
                         }
                     default:
                         break;
                 }
             }
+            Task.WaitAll(taskList.ToArray());
 
         }
 

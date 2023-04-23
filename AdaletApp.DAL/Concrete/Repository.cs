@@ -50,6 +50,19 @@ namespace AdaletApp.DAL.Concrete
             }
         }
 
+        public async Task<T> Get(Expression<Func<T, bool>> predicate = null)
+        {
+            using (var db = new Context())
+            {
+                var entity = await db.Set<T>().FirstOrDefaultAsync(predicate);
+                if (entity != null)
+                {
+                    return entity;
+                }
+                return null;
+            }
+        }
+
         public async Task<List<T>> GetAll(Expression<Func<T, bool>> predicate = null)
         {
             using (var db = new Context())
@@ -58,7 +71,7 @@ namespace AdaletApp.DAL.Concrete
             }
         }
 
-        public async Task<List<T>> GetEntitesByPagination(Expression<Func<T, bool>> predicate = null, int pageNumber = 1, int limitCount = 10)
+        public virtual async Task<List<T>> GetEntitesByPagination(Expression<Func<T, bool>> predicate = null, int pageNumber = 1, int limitCount = 10)
         {
             using (var db = new Context())
             {
@@ -67,11 +80,16 @@ namespace AdaletApp.DAL.Concrete
             }
         }
 
-        public async Task<int> GetEntityCount()
+        public async Task<int> GetEntityCount(Expression<Func<T, bool>> predicate = null)
         {
             using (var db = new Context())
             {
-                return await db.Set<T>().CountAsync();
+                if (predicate == null)
+                {
+                    return await db.Set<T>().CountAsync();
+                }
+                return await db.Set<T>().Where(predicate).CountAsync();
+
             }
         }
 

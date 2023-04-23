@@ -1,6 +1,6 @@
 ﻿using AdaletApp.DAL.Abstract;
-using AdaletApp.DAL.Utilites;
 using AdaletApp.Entities;
+using AdaletApp.WEBAPI.Abstract;
 using AdaletApp.WEBAPI.Utilities;
 using AdaletApp.WEBAPI.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +16,14 @@ namespace AdaletApp.WEBAPI.Controllers
     {
         private readonly ICategorySourceRepository _categorySourceRepository;
         private readonly IArticleRepository articleRepository;
+        private readonly IFileService fileService;
         private readonly ResponseResult<Article> responseResult;
-        public NewsController(ICategorySourceRepository _categorySourceRepository, IArticleRepository articleRepository)
+        public NewsController(ICategorySourceRepository _categorySourceRepository, IArticleRepository articleRepository, IFileService fileService)
         {
             this._categorySourceRepository = _categorySourceRepository;
             this.articleRepository = articleRepository;
             this.responseResult = new ResponseResult<Article>();
+            this.fileService = fileService;
         }
 
         [AllowAnonymous]
@@ -40,12 +42,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entities = await articleRepository.GetAll(a => a.CategoryId == categoryId);
             return Ok(this.responseResult);
         }
-        [AllowAnonymous]
-        [HttpGet("GetNewsCount")]
-        public async Task<IActionResult> GetNewsCount()
-        {
-            return Ok(await articleRepository.GetAllNewsCount());
-        }
+
         [AllowAnonymous]
         [HttpGet("GetAllNews")]
         public async Task<IActionResult> GetAllNews()
@@ -53,6 +50,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entities = await articleRepository.GetAllNewsOrderByIdDescending();
             return Ok(this.responseResult);
         }
+
 
 
         [AllowAnonymous]
@@ -64,22 +62,35 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
 
+
         [AllowAnonymous]
-        [HttpGet("GetNewsByCategoryIDPager/{categoryId}/{pageCount}/{limit}")]
-        public async Task<IActionResult> GetNewsByCategoryID(int categoryId, int pageCount, int limit)
+        [HttpGet("GetNewsByPagination/{pageCount}/{limit}")]
+        public async Task<IActionResult> GetNewsByPagination(int pageCount = 1, int limit = 10)
         {
-            this.responseResult.Entities = await articleRepository.GetArticlesByCategoryIdLimit(categoryId, pageCount, limit);
+            this.responseResult.Entities = await articleRepository.GetArticlesByPagination(pageCount, limit);
+            this.responseResult.TotalCount = await articleRepository.GetEntityCount();
             return Ok(this.responseResult);
         }
+
+        [AllowAnonymous]
+        [HttpPost("GetNewsByPagination")]
+        public async Task<IActionResult> GetNewsByPagination([FromBody] CategoryViewModel model)
+        {
+            this.responseResult.Entities = await articleRepository.GetArticlesByCategorySlugLimit(model.Slug, (int)model.PageSize, model.LimitCount);
+            this.responseResult.TotalCount = await articleRepository.GetEntityCount(a => a.Category.SeoUrl == model.Slug);
+            return Ok(this.responseResult);
+        }
+
 
         [HttpPost("AddArticle")]
         public async Task<IActionResult> AddActicle([FromForm] UpdateArticleViewModel model)
         {
             var pictureUrl = string.Empty;
+            var title = Helper.Helper.KarakterDuzelt(model.Title);
             if (model.FileInput != null)
             {
                 var fileExt = Path.GetExtension(model.FileInput.FileName);
-                var fileName = Guid.NewGuid() + fileExt;
+                var fileName = title + fileExt;
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                 using (Stream fileStream = new FileStream(filePath, FileMode.Create))
                 {
@@ -95,7 +106,7 @@ namespace AdaletApp.WEBAPI.Controllers
                 NewsContent = model.NewsContent,
                 PictureUrl = !string.IsNullOrEmpty(pictureUrl) ? pictureUrl : null,
                 Source = model.Source,
-                SeoUrl = Helper.KarakterDuzelt(model.Title),
+                SeoUrl = title,
                 SubTitle = model.SubTitle,
                 SourceUrl = model.SourceUrl,
             };
@@ -118,12 +129,14 @@ namespace AdaletApp.WEBAPI.Controllers
         {
             var entity = HttpContext.Items["entity"] as Article;
 
+            var title = Helper.Helper.KarakterDuzelt(model.Title);
+
             entity.Active = model.Active;
             entity.CategoryId = model.CategoryId;
             entity.NewsContent = model.NewsContent;
             entity.PictureUrl = model.PictureUrl;
             entity.ReadCount = model.ReadCount;
-            entity.SeoUrl = Helper.KarakterDuzelt(model.Title);
+            entity.SeoUrl = title;
             entity.Source = model.Source;
             entity.SourceUrl = model.SourceUrl;
             entity.SubTitle = model.SubTitle;
@@ -133,23 +146,22 @@ namespace AdaletApp.WEBAPI.Controllers
             if (model.FileInput != null)
             {
                 var fileExt = Path.GetExtension(model.FileInput.FileName);
-                var fileName = Helper.KarakterDuzelt(entity.Title) + fileExt;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+                var fileName = title + fileExt;
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
 
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
+                //if (System.IO.File.Exists(filePath))
+                //{
+                //    System.IO.File.Delete(filePath);
 
-                }
+                //}
+                fileService.DeleteFile(fileName);
 
-                var fileNameNew = Guid.NewGuid() + fileExt;
-                var filePathNew = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileNameNew);
-
+                var filePathNew = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                 using (Stream fileStream = new FileStream(filePathNew, FileMode.Create))
                 {
                     await model.FileInput.CopyToAsync(fileStream);
                 }
-                entity.PictureUrl = fileNameNew;
+                entity.PictureUrl = fileName;
             }
 
 
@@ -161,12 +173,17 @@ namespace AdaletApp.WEBAPI.Controllers
         public async Task<IActionResult> DeleteArticle(int id)
         {
             var entity = HttpContext.Items["entity"] as Article;
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", entity.PictureUrl);
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
+            //if (!string.IsNullOrEmpty(entity.PictureUrl))
+            //{
+            //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", entity.PictureUrl);
+            //    if (System.IO.File.Exists(filePath))
+            //    {
+            //        System.IO.File.Delete(filePath);
 
-            }
+            //    }
+            //}
+            fileService.DeleteFile(entity.PictureUrl);
+
             this.responseResult.Entity = await articleRepository.Delete(entity);
             return Ok(this.responseResult);
         }

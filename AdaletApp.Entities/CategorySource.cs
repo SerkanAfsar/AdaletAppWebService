@@ -9,11 +9,12 @@ namespace AdaletApp.Entities
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
+
         [Required(ErrorMessage = "Kaynak Seçiniz")]
-        //[Range(1, 3, ErrorMessage = "Kaynak Seçimi Yanlış")]
+
         public SourceList Source { get; set; }
 
-        [Required(ErrorMessage = "Kaynak Url Giriniz...")]
+        [Required(ErrorMessage = "Kaynak Url Giriniz 1...")]
         public string SourceUrl { get; set; }
     }
 }

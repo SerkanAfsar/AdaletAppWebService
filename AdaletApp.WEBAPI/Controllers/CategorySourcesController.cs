@@ -24,8 +24,7 @@ namespace AdaletApp.WEBAPI.Controllers
         [HttpGet("GetCategorySource/{id}")]
         public async Task<IActionResult> GetCategorySource(int id)
         {
-            //var entity = HttpContext.Items["entity"] as CategorySource;
-            //this.responseResult.Entity = entity;
+
 
             var entity = await categorySourceRepository.GetCategorySourceIncludeCategoryById(id);
             if (entity == null)
@@ -48,6 +47,7 @@ namespace AdaletApp.WEBAPI.Controllers
         public async Task<IActionResult> GetCategorySourceList([FromQuery] int? CategoryID = null, [FromQuery] int pageSize = 1, [FromQuery] int limitCount = 10)
         {
             this.responseResult.Entities = await categorySourceRepository.GetCategorySourceList(CategoryID, pageSize, limitCount);
+            this.responseResult.TotalCount = await this.categorySourceRepository.GetEntityCount();
 
             return Ok(this.responseResult);
         }

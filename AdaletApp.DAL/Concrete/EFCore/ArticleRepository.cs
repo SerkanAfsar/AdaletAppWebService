@@ -6,14 +6,6 @@ namespace AdaletApp.DAL.Concrete.EFCore
 {
     public class ArticleRepository : Repository<AppDbContext, Article>, IArticleRepository
     {
-        public async Task<int> GetAllNewsCount()
-        {
-            using (var db = new AppDbContext())
-            {
-                return await db.Articles.CountAsync();
-            }
-        }
-
         public async Task<List<Article>> GetAllNewsOrderByIdDescending()
         {
             using (var db = new AppDbContext())
@@ -36,12 +28,40 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
-        public async Task<List<Article>> GetArticlesByCategoryIdLimit(int CategoryID, int pageNumber, int limit)
+        public async Task<List<Article>> GetArticlesByCategorySlugLimit(string slug, int pageNumber, int limit)
         {
             using (var db = new AppDbContext())
             {
-                return await db.Articles.Where(a => a.CategoryId == CategoryID).OrderByDescending(a => a.CreateDate).Skip(pageNumber * limit).Take(limit).ToListAsync();
+                return await db.Articles.Where(a => a.Category.SeoUrl == slug).Select(a => new Article()
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    SeoUrl = a.SeoUrl,
+                    PictureUrl = a.PictureUrl,
+                    SubTitle = a.SubTitle,
+                    CreateDate = a.CreateDate,
+                }).OrderByDescending(a => a.CreateDate).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
 
+            }
+        }
+
+        public async Task<List<Article>> GetArticlesByPagination(int pageNumber = 1, int limitCount = 10)
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.OrderByDescending(a => a.CreateDate).Skip((pageNumber - 1) * limitCount).Select(a => new Article()
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    PictureUrl = a.PictureUrl,
+                    Category = new Category()
+                    {
+                        CategoryName = a.Category.CategoryName
+                    },
+                    Source = a.Source
+
+
+                }).Take(limitCount).ToListAsync();
             }
         }
 
@@ -59,6 +79,8 @@ namespace AdaletApp.DAL.Concrete.EFCore
                 }).ToListAsync();
             }
         }
+
+
 
         public async Task<bool> HasArticle(string title)
         {

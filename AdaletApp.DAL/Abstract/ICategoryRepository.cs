@@ -4,9 +4,12 @@ namespace AdaletApp.DAL.Abstract
 {
     public interface ICategoryRepository : IRepository<Category>
     {
-        public Task<List<Category>> GetMainPageCategories();
-        public Task<Category> GetCategoryWithCategorySourceList(int CategoryID);
-        public Task<Category> GetCategoryBySlug(string slug);
+        Task<Category> GetCategoryWithCategorySourceList(int CategoryID);
+        Task<Category> GetCategoryIncludeNewsPictures(int CategoryID);
+        Task<List<Category>> GetActiveCategoryListWithArticleCount();
+
+        Task<Category> GetCategoryWithLatestAndPopularNews(string seoUrl, int limitCount = 10);
+
 
     }
 }
