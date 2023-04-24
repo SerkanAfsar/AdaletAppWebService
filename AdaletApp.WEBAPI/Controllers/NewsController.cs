@@ -36,14 +36,6 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("GetNewsByCategoryID/{categoryId}")]
-        public async Task<IActionResult> GetNewsByCategoryID(int categoryId)
-        {
-            this.responseResult.Entities = await articleRepository.GetAll(a => a.CategoryId == categoryId);
-            return Ok(this.responseResult);
-        }
-
-        [AllowAnonymous]
         [HttpGet("GetAllNews")]
         public async Task<IActionResult> GetAllNews()
         {
@@ -51,13 +43,27 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
-
-
         [AllowAnonymous]
         [HttpGet("GetLastFourNews")]
         public async Task<IActionResult> GetLastFourNews()
         {
             this.responseResult.Entities = await articleRepository.GetLastFourNews();
+            return Ok(this.responseResult);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetNewsByCategoryId/{categoryId}")]
+        public async Task<IActionResult> GetNewsByCategoryId(int categoryId)
+        {
+            this.responseResult.Entities = await articleRepository.GetAll(a => a.CategoryId == categoryId);
+            return Ok(this.responseResult);
+        }
+        [AllowAnonymous]
+        [HttpPost("GetNewsByPagination")]
+        public async Task<IActionResult> GetNewsByPagination([FromBody] CategoryViewModel model)
+        {
+            this.responseResult.Entities = await articleRepository.GetArticlesByCategorySlugLimit(model.Slug, (int)model.PageSize, model.LimitCount);
+            this.responseResult.TotalCount = await articleRepository.GetEntityCount(a => a.Category.SeoUrl == model.Slug);
             return Ok(this.responseResult);
         }
 
@@ -72,14 +78,7 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
-        [AllowAnonymous]
-        [HttpPost("GetNewsByPagination")]
-        public async Task<IActionResult> GetNewsByPagination([FromBody] CategoryViewModel model)
-        {
-            this.responseResult.Entities = await articleRepository.GetArticlesByCategorySlugLimit(model.Slug, (int)model.PageSize, model.LimitCount);
-            this.responseResult.TotalCount = await articleRepository.GetEntityCount(a => a.Category.SeoUrl == model.Slug);
-            return Ok(this.responseResult);
-        }
+
 
 
         [HttpPost("AddArticle")]
@@ -147,15 +146,7 @@ namespace AdaletApp.WEBAPI.Controllers
             {
                 var fileExt = Path.GetExtension(model.FileInput.FileName);
                 var fileName = title + fileExt;
-                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
-
-                //if (System.IO.File.Exists(filePath))
-                //{
-                //    System.IO.File.Delete(filePath);
-
-                //}
                 fileService.DeleteFile(fileName);
-
                 var filePathNew = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
                 using (Stream fileStream = new FileStream(filePathNew, FileMode.Create))
                 {
@@ -173,17 +164,7 @@ namespace AdaletApp.WEBAPI.Controllers
         public async Task<IActionResult> DeleteArticle(int id)
         {
             var entity = HttpContext.Items["entity"] as Article;
-            //if (!string.IsNullOrEmpty(entity.PictureUrl))
-            //{
-            //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", entity.PictureUrl);
-            //    if (System.IO.File.Exists(filePath))
-            //    {
-            //        System.IO.File.Delete(filePath);
-
-            //    }
-            //}
             fileService.DeleteFile(entity.PictureUrl);
-
             this.responseResult.Entity = await articleRepository.Delete(entity);
             return Ok(this.responseResult);
         }

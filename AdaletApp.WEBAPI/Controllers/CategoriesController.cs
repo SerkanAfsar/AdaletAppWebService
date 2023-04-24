@@ -3,14 +3,13 @@ using AdaletApp.Entities;
 using AdaletApp.WEBAPI.Abstract;
 using AdaletApp.WEBAPI.Utilities;
 using AdaletApp.WEBAPI.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
 
-    [CustomAuthorize("RootAdmin")]
+
     [ServiceFilter(typeof(CustomFilterAttribute<Category>))]
     public class CategoriesController : Controller
     {
@@ -26,7 +25,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this._fileService = fileService;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("GetCategory/{id}")]
         public async Task<IActionResult> GetCategory(int id)
         {
@@ -34,7 +33,14 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = entity;
             return Ok(this.responseResult);
         }
-        [AllowAnonymous]
+        [HttpGet("GetCategoryBySlug/{slug}")]
+        public async Task<IActionResult> GetCategoryBySlug(string slug)
+        {
+            this.responseResult.Entity = await _categoryRepository.Get(a => a.SeoUrl == slug);
+            this.responseResult.TotalCount = await _categoryRepository.GetEntityCount(a => a.SeoUrl == slug);
+            return Ok(this.responseResult);
+        }
+
         [HttpPost("GetCategory")]
         public async Task<IActionResult> GetCategory([FromBody] CategoryViewModel model)
         {
@@ -52,7 +58,7 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("GetCategoryList")]
         public async Task<IActionResult> GetCategoryList()
         {
@@ -60,7 +66,15 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.TotalCount = await _categoryRepository.GetEntityCount();
             return Ok(this.responseResult);
         }
-        [AllowAnonymous]
+
+        [HttpGet("GetCategoryListMainPage")]
+        public async Task<IActionResult> GetMainPageCategories()
+        {
+            this.responseResult.Entities = await _categoryRepository.GetMainPageCategoriesWithArticles();
+            this.responseResult.TotalCount = this.responseResult.Entities.Count();
+            return Ok(this.responseResult);
+        }
+
         [HttpGet("GetCategoryListWithArticleCount")]
         public async Task<IActionResult> GetCategoryListWithArticleCount()
         {
@@ -70,18 +84,7 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
 
-        [AllowAnonymous]
-        [HttpGet("GetCategoryListSourceList/{id}")]
-        public async Task<IActionResult> GetCategoryWithCategorySourceList(int id)
-        {
-            var entity = HttpContext.Items["entity"] as Category;
-            this.responseResult.Entity = await _categoryRepository.GetCategoryWithCategorySourceList(id);
-            this.responseResult.TotalCount = await _categoryRepository.GetEntityCount(a => a.Id == id);
-            return Ok(this.responseResult);
-        }
 
-
-        [AllowAnonymous]
         [HttpGet("GetCategoryListByPagination/{pageSize}/{limitCount}")]
         public async Task<IActionResult> GetCategoryList(int pageSize, int limitCount)
         {
@@ -91,39 +94,12 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
 
-        [AllowAnonymous]
-        [HttpGet("GetCategoryBySlug/{slug}")]
-        public async Task<IActionResult> GetCategoryBySlug(string slug)
-        {
-            this.responseResult.Entity = await _categoryRepository.Get(a => a.SeoUrl == slug);
-            this.responseResult.TotalCount = await _categoryRepository.GetEntityCount(a => a.SeoUrl == slug);
-            return Ok(this.responseResult);
-        }
 
-        [AllowAnonymous]
-        [HttpGet("GetMainPageCategories")]
-        public async Task<IActionResult> GetMainPageCategories()
-        {
-            var entities = await _categoryRepository.GetAll(a => a.MainPageCategory == true);
-            var result = entities.OrderBy(a => a.Queue).Select(a => new Category()
-            {
-                CategoryName = a.CategoryName,
-                Id = a.Id,
-                Articles = a.Articles.OrderByDescending(b => b.CreateDate).Select(article => new Article
-                {
-                    Id = article.Id,
-                    Title = article.Title,
-                    SeoUrl = article.SeoUrl,
-                    SubTitle = article.SubTitle,
-                    PictureUrl = article.PictureUrl,
-                }).Take(3).ToList()
-            }).ToList();
 
-            this.responseResult.Entities = result;
-            this.responseResult.TotalCount = entities.Count();
-            return Ok(this.responseResult);
-        }
 
+
+
+        [CustomAuthorize("RootAdmin")]
         [HttpPost("AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
@@ -131,7 +107,7 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.Entity = await _categoryRepository.Add(category);
             return Ok(responseResult);
         }
-
+        [CustomAuthorize("RootAdmin")]
         [HttpPut("UpdateCategory/{id:int}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
         {
@@ -164,7 +140,7 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(responseResult);
         }
 
-
+        [CustomAuthorize("RootAdmin")]
         [HttpDelete("DeleteCategory/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {

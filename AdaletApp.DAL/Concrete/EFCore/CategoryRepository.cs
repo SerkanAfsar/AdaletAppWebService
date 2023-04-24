@@ -76,27 +76,14 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
-        //public async Task<List<Category>> GetMainPageCategories()
-        //{
-        //    using (var db = new AppDbContext())
-        //    {
-        //        var list = await db.Categories
-        //            .Where(a => a.MainPageCategory == true)
-        //            .OrderBy(a => a.Queue).Select(a => new Category()
-        //            {
-        //                CategoryName = a.CategoryName,
-        //                Id = a.Id,
-        //                Articles = a.Articles.OrderByDescending(b => b.CreateDate).Select(article => new Article
-        //                {
-        //                    Id = article.Id,
-        //                    Title = article.Title,
-        //                    SeoUrl = article.SeoUrl,
-        //                    SubTitle = article.SubTitle,
-        //                    PictureUrl = article.PictureUrl,
-        //                }).Take(3).ToList()
-        //            }).ToListAsync();
-        //        return list;
-        //    }
-        //}
+        public async Task<List<Category>> GetMainPageCategoriesWithArticles()
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Categories.Where(a => a.MainPageCategory == true).Include(a => a.Articles.OrderByDescending(b => b.ReadCount).Take(7)).ToListAsync();
+            }
+        }
+
+
     }
 }
