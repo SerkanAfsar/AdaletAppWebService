@@ -10,6 +10,7 @@ namespace AdaletApp.DAL.Abstract
         Task<List<Category>> GetMainPageCategoriesWithArticles();
 
         Task<Category> GetCategoryWithLatestAndPopularNews(string seoUrl, int limitCount = 10);
+        Task<List<Category>> GetMainPageTopSixCategories(CancellationToken cancellationToken = default);
 
 
     }

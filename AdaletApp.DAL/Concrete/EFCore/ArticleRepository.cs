@@ -65,22 +65,41 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
-        public async Task<List<Article>> GetLastFourNews()
+
+        public async Task<List<Article>> GetLatestNewsByCategoryIdAsync(int categoryId, int limitCount = 10)
         {
             using (var db = new AppDbContext())
             {
-                return await db.Articles.OrderByDescending(a => a.Id).Take(4).Select(a => new Article
-                {
-                    Id = a.Id,
-                    CreateDate = a.CreateDate,
-                    Title = a.Title,
-                    SeoUrl = a.SeoUrl,
-                    PictureUrl = a.PictureUrl,
-                }).ToListAsync();
+                return await db.Articles.OrderByDescending(a => a.CreateDate).Where(a => a.CategoryId == categoryId).Take(10).ToListAsync();
+            }
+        }
+
+        public async Task<List<Article>> GetMainPageLastAddedNewsAsync(int limitCount = 10)
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.OrderByDescending(a => a.CreateDate).Take(limitCount).ToListAsync();
             }
         }
 
 
+
+        public async Task<List<Article>> GetMainPageTopReadedNewsAsync(int limitCount = 10)
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.OrderByDescending(a => a.ReadCount).Take(limitCount).ToListAsync();
+            }
+        }
+
+
+        public async Task<List<Article>> GetTopReadedNewsByCategoryIdAsync(int categoryId, int limitCount = 10)
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Articles.OrderByDescending(a => a.ReadCount).Where(a => a.CategoryId == categoryId).Take(10).ToListAsync();
+            }
+        }
 
         public async Task<bool> HasArticle(string title)
         {

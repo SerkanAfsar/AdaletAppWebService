@@ -42,7 +42,7 @@ namespace AdaletApp.WEBAPI.Controllers
         }
 
         [HttpPost("GetCategory")]
-        public async Task<IActionResult> GetCategory([FromBody] CategoryViewModel model)
+        public async Task<IActionResult> GetCategory([FromBody] CategoryDTO model)
         {
             var entity = await _categoryRepository.GetCategoryWithLatestAndPopularNews(model.Slug, model.LimitCount);
             if (entity == null)
@@ -75,6 +75,14 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
+        [HttpGet("GetMainPageTopSixCategories")]
+        public async Task<IActionResult> GetMainPageTopSixCategories()
+        {
+            this.responseResult.Entities = await _categoryRepository.GetMainPageTopSixCategories();
+            this.responseResult.TotalCount = this.responseResult.Entities.Count();
+            return Ok(this.responseResult);
+        }
+
         [HttpGet("GetCategoryListWithArticleCount")]
         public async Task<IActionResult> GetCategoryListWithArticleCount()
         {
@@ -83,8 +91,6 @@ namespace AdaletApp.WEBAPI.Controllers
             return Ok(this.responseResult);
         }
 
-
-
         [HttpGet("GetCategoryListByPagination/{pageSize}/{limitCount}")]
         public async Task<IActionResult> GetCategoryList(int pageSize, int limitCount)
         {
@@ -92,11 +98,6 @@ namespace AdaletApp.WEBAPI.Controllers
             this.responseResult.TotalCount = await _categoryRepository.GetEntityCount();
             return Ok(this.responseResult);
         }
-
-
-
-
-
 
 
         [CustomAuthorize("RootAdmin")]

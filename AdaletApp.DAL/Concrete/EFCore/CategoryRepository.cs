@@ -16,7 +16,7 @@ namespace AdaletApp.DAL.Concrete.EFCore
                     CategoryName = a.CategoryName,
                     ArticleCount = a.Articles.Count(),
                     SeoUrl = a.SeoUrl,
-                }).ToListAsync();
+                }).OrderByDescending(a => a.CreateDate).ToListAsync();
             }
         }
 
@@ -84,6 +84,24 @@ namespace AdaletApp.DAL.Concrete.EFCore
             }
         }
 
+        public async Task<List<Category>> GetMainPageTopSixCategories(CancellationToken cancellationToken = default)
+        {
+            using (var db = new AppDbContext())
+            {
+                return await db.Categories
+                    .Include(a => a.Articles.OrderByDescending(a => a.ReadCount).Take(7))
+                    .GroupBy(a => new
+                    {
+                        Sayi = a.Articles.Sum(b => b.ReadCount),
+                        NewsCount = a.Articles.Count,
+                    })
+                    .OrderByDescending(a => a.Key.Sayi).ThenByDescending(a => a.Key.NewsCount).Take(6)
+                    .Select(a => a.First())
+                    .ToListAsync(cancellationToken);
+            }
+        }
+
 
     }
+
 }

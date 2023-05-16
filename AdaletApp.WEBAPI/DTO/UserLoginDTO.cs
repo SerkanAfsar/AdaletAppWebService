@@ -2,19 +2,17 @@
 
 namespace AdaletApp.WEBAPI.ViewModels
 {
-    public class UserRegisterViewModel
+    public class UserLoginDTO
     {
-        [Required(ErrorMessage = "Name Surname is Required")]
-        public string NameSurname { get; set; }
+
         [Required(ErrorMessage = "EMail is Required")]
         public string EMail { get; set; }
         [Required(ErrorMessage = "Password is Required")]
         public string Password { get; set; }
+
         [Required(ErrorMessage = "RePassword is Required")]
-        [Compare("Password", ErrorMessage = "Password and Repassword Must Range")]
+        [Compare("Password", ErrorMessage = "Password and RePassword must be matched")]
         public string RePassword { get; set; }
-        [Required(ErrorMessage = "Select Role")]
-        public string RoleName { get; set; }
 
     }
 }

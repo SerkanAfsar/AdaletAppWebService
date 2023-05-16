@@ -11,6 +11,8 @@ namespace AdaletApp.WEBAPI.Utilities
         public List<string> ErrorList { get; set; }
         public HttpStatusCode StatusCode { get; set; }
         public int TotalCount { get; set; } = 0;
+        public int PaginationItemCount { get; set; } = 0;
+
         public ResponseResult()
         {
             this.Entities = new List<T>();
@@ -20,6 +22,7 @@ namespace AdaletApp.WEBAPI.Utilities
             this.ErrorList = new List<string>();
             this.StatusCode = HttpStatusCode.OK;
             this.TotalCount = 0;
+            this.PaginationItemCount = 0;
         }
     }
 }

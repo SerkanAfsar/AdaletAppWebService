@@ -10,14 +10,14 @@ namespace AdaletApp.WEBAPI.Controllers
 {
     [Route("api/[controller]")]
     [CustomAuthorize("RootAdmin")]
-    [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterViewModel>))]
+    [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterDTO>))]
     public class LoginController : Controller
     {
         private readonly ILoginService loginService;
         private readonly UserManager<AppUser> userManager;
         private readonly RoleManager<AppRole> roleManager;
         private readonly SignInManager<AppUser> signInManager;
-        private readonly ResponseResult<UserRegisterViewModel> responseResult;
+        private readonly ResponseResult<UserRegisterDTO> responseResult;
 
         public LoginController(ILoginService _loginService, UserManager<AppUser> _usermanager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager)
         {
@@ -25,21 +25,21 @@ namespace AdaletApp.WEBAPI.Controllers
             this.userManager = _usermanager;
             this.roleManager = roleManager;
             this.signInManager = signInManager;
-            this.responseResult = new ResponseResult<UserRegisterViewModel>();
+            this.responseResult = new ResponseResult<UserRegisterDTO>();
 
         }
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO model)
         {
             var result = await loginService.TokenResult(model);
             return Ok(result);
         }
 
         [AllowAnonymous]
-        [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterViewModel>))]
+        [ServiceFilter(typeof(CustomFilterAttribute<UserRegisterDTO>))]
         [HttpPost("CreateUser")]
-        public async Task<IActionResult> CreateUser([FromBody] UserRegisterViewModel model)
+        public async Task<IActionResult> CreateUser([FromBody] UserRegisterDTO model)
         {
             if (!ModelState.IsValid)
             {

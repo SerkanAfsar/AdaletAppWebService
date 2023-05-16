@@ -15,13 +15,13 @@ namespace AdaletApp.WEBAPI.Concrete
         private readonly UserManager<AppUser> userManager;
         private readonly RoleManager<AppRole> roleManager;
         private readonly IConfiguration configuration;
-        private readonly ResponseResult<TokenViewModel> responseResult;
+        private readonly ResponseResult<TokenDTO> responseResult;
         public LoginService(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             this.configuration = configuration;
-            this.responseResult = new ResponseResult<TokenViewModel>()
+            this.responseResult = new ResponseResult<TokenDTO>()
             {
                 Entities = null,
                 HasError = true,
@@ -29,7 +29,7 @@ namespace AdaletApp.WEBAPI.Concrete
 
             };
         }
-        public async Task<ResponseResult<TokenViewModel>> TokenResult(UserLoginViewModel loginViewModel)
+        public async Task<ResponseResult<TokenDTO>> TokenResult(UserLoginDTO loginViewModel)
         {
             if (loginViewModel == null)
             {
@@ -75,7 +75,7 @@ namespace AdaletApp.WEBAPI.Concrete
             var tokenKey = tokenHandler.WriteToken(token);
             this.responseResult.IsSuccess = true;
             this.responseResult.HasError = false;
-            this.responseResult.Entity = new TokenViewModel { Token = tokenKey, ExpireDate = DateTime.Now.AddDays(7), NameSurname = user.NameSurname, EMail = user.Email };
+            this.responseResult.Entity = new TokenDTO { Token = tokenKey, ExpireDate = DateTime.Now.AddDays(7), NameSurname = user.NameSurname, EMail = user.Email };
             return responseResult;
 
         }

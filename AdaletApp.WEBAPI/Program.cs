@@ -1,14 +1,6 @@
-using AdaletApp.DAL.Abstract;
-using AdaletApp.DAL.Abstract.NewsWebSites;
-
-using AdaletApp.DAL.Concrete;
 using AdaletApp.DAL.Concrete.EFCore;
-using AdaletApp.DAL.Concrete.NewsWebSites;
 using AdaletApp.Entities;
-using AdaletApp.WEBAPI.Abstract;
-using AdaletApp.WEBAPI.Concrete;
-using AdaletApp.WEBAPI.Utilities;
-using AdaletApp.WEBAPI.ViewModels;
+using AdaletApp.WEBAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -24,24 +16,9 @@ builder.Services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSetting
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>();
-builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
-builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
-builder.Services.AddSingleton<ICategorySourceRepository, CategorySourceRepository>();
-builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddSingleton<IHukukiHaberRepository, HukukiHaberRepository>();
-builder.Services.AddSingleton<IAdaletBizRepository, AdaletBizRepository>();
-builder.Services.AddSingleton<IAdaletMedyaRepository, AdaletMedyaRepository>();
+builder.Services.AddRepositoyServices();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-
-builder.Services.AddScoped<CustomFilterAttribute<Article>>();
-builder.Services.AddScoped<CustomFilterAttribute<Category>>();
-builder.Services.AddScoped<CustomFilterAttribute<CategorySource>>();
-builder.Services.AddScoped<CustomFilterAttribute<UserLoginViewModel>>();
-builder.Services.AddScoped<CustomFilterAttribute<UserRegisterViewModel>>();
-builder.Services.AddScoped<CustomFilterAttribute<AppUser>>();
-builder.Services.AddScoped<CustomFilterAttribute<AppRole>>();
+builder.Services.AddCustomFilterServicesTo();
 builder.Services.AddHttpContextAccessor();
 
 

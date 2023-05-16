@@ -10,9 +10,11 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
     public class AdaletMedyaRepository : IAdaletMedyaRepository
     {
         private readonly IArticleRepository _articleRepository;
-        public AdaletMedyaRepository(IArticleRepository _articleRepository)
+        private readonly ICategoryRepository _categoryRepository;
+        public AdaletMedyaRepository(IArticleRepository _articleRepository, ICategoryRepository categoryRepository)
         {
             this._articleRepository = _articleRepository;
+            this._categoryRepository = categoryRepository;
         }
 
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
@@ -95,7 +97,10 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
                         var article = new Article();
                         article.Title = title;
 
+                        var categoryEntity = await _categoryRepository.Get(a => a.Id == CategoryID);
+
                         var seoTitle = Utils.KarakterDuzelt(title);
+
 
                         HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//p[@class='lead hs-head-font']");
                         if (subDesc != null)
@@ -132,11 +137,12 @@ namespace AdaletApp.DAL.Concrete.NewsWebSites
                             await File.WriteAllBytesAsync(filePath, imageBytes);
                             article.PictureUrl = fileName;
                         }
-                        article.SeoUrl = seoTitle;
+                        article.SeoUrl = categoryEntity.SeoUrl + "/" + seoTitle;
                         article.CategoryId = CategoryID;
                         article.SourceUrl = articleSourceUrl;
                         article.Source = SourceList.ADALETMEDYA;
                         article.Active = true;
+
                         await this._articleRepository.Add(article);
                     }
                 }

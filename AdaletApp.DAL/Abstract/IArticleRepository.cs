@@ -9,9 +9,12 @@ namespace AdaletApp.DAL.Abstract
         Task<Article> GetArticleIncludeCategory(int NewsID);
 
         Task<List<Article>> GetAllNewsOrderByIdDescending();
-        Task<List<Article>> GetLastFourNews();
-        Task<List<Article>> GetArticlesByPagination(int pageNumber = 1, int limitCount = 10);
 
+        Task<List<Article>> GetArticlesByPagination(int pageNumber = 1, int limitCount = 10);
+        Task<List<Article>> GetTopReadedNewsByCategoryIdAsync(int categoryId, int limitCount = 10);
+        Task<List<Article>> GetLatestNewsByCategoryIdAsync(int categoryId, int limitCount = 10);
+        Task<List<Article>> GetMainPageTopReadedNewsAsync(int limitCount = 10);
+        Task<List<Article>> GetMainPageLastAddedNewsAsync(int limitCount = 10);
 
 
     }

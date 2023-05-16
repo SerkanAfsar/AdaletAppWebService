@@ -9,9 +9,13 @@ namespace AdaletApp.DAL.Concrete
     public class AdaletBizRepository : IAdaletBizRepository
     {
         private readonly IArticleRepository _articleRepository;
-        public AdaletBizRepository(IArticleRepository _articleRepository)
+        private readonly ICategoryRepository _categoryRepository;
+
+        public AdaletBizRepository(IArticleRepository _articleRepository, ICategoryRepository _categoryRepository)
         {
             this._articleRepository = _articleRepository;
+            this._categoryRepository = _categoryRepository;
+
         }
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
         {
@@ -80,7 +84,10 @@ namespace AdaletApp.DAL.Concrete
                     {
                         var article = new Article();
                         article.Title = title;
-                        var seotitle = Utils.KarakterDuzelt(title);
+                        var categoryEntity = await _categoryRepository.Get(a => a.Id == CategoryID);
+
+
+                        var seoTitle = Utils.KarakterDuzelt(title);
 
                         HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//p[@class='lead hs-head-font']");
                         if (subDesc != null)
@@ -97,20 +104,20 @@ namespace AdaletApp.DAL.Concrete
                             article.NewsContent = HttpUtility.HtmlDecode(nodeContent.InnerHtml);
                         }
 
-                        HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
-                        if (pictureNode != null)
-                        {
+                        //HtmlNode pictureNode = doc.DocumentNode.SelectSingleNode("//div[@class='clearfix newspic']//span//img");
+                        //if (pictureNode != null)
+                        //{
 
-                            var picUrl = pictureNode.Attributes["src"]?.Value;
-                            var fileExt = Path.GetExtension(picUrl);
-                            var fileName = seotitle + fileExt;
-                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
-                            var imageBytes = await client.GetByteArrayAsync(picUrl);
-                            await File.WriteAllBytesAsync(filePath, imageBytes);
-                            article.PictureUrl = fileName;
+                        //    var picUrl = pictureNode.Attributes["src"]?.Value;
+                        //    var fileExt = Path.GetExtension(picUrl);
+                        //    var fileName = seoTitle + fileExt;
+                        //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Images", fileName);
+                        //    var imageBytes = await client.GetByteArrayAsync(picUrl);
+                        //    await File.WriteAllBytesAsync(filePath, imageBytes);
+                        //    article.PictureUrl = fileName;
 
-                        }
-                        article.SeoUrl = seotitle;
+                        //}
+                        article.SeoUrl = categoryEntity.SeoUrl + "/" + seoTitle;
                         article.CategoryId = CategoryID;
                         article.SourceUrl = articleSourceUrl;
                         article.Source = SourceList.ADALETBIZ;

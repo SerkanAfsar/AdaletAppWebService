@@ -1,6 +1,6 @@
 ﻿namespace AdaletApp.WEBAPI.ViewModels
 {
-    public class CategoryViewModel
+    public class CategoryDTO
     {
         public string Slug { get; set; }
         public int LimitCount { get; set; }

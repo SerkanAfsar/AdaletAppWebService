@@ -1,11 +1,8 @@
 ﻿using AdaletApp.Entities;
 using AdaletApp.WEBAPI.Utilities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Security.Claims;
 
 namespace AdaletApp.WEBAPI.Controllers
 {

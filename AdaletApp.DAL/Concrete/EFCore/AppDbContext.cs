@@ -1,12 +1,7 @@
-﻿using AdaletApp.DAL.Utilites;
-using AdaletApp.Entities;
+﻿using AdaletApp.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace AdaletApp.DAL.Concrete.EFCore
 {
@@ -14,7 +9,13 @@ namespace AdaletApp.DAL.Concrete.EFCore
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(Utils.MsSqlConnectionString);
+            var connectionString = new ConfigurationBuilder().
+                SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build().
+                GetConnectionString("DefaultConnection");
+
+            optionsBuilder.UseSqlServer(connectionString);
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategorySource> CategorySource { get; set; }

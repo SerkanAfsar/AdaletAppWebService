@@ -1,6 +1,6 @@
 ﻿namespace AdaletApp.WEBAPI.ViewModels
 {
-    public class TokenViewModel
+    public class TokenDTO
     {
         public string Token { get; set; }
         public DateTime? ExpireDate { get; set; }

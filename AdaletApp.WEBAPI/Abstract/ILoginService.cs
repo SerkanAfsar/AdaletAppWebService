@@ -5,6 +5,6 @@ namespace AdaletApp.WEBAPI.Abstract
 {
     public interface ILoginService
     {
-        Task<ResponseResult<TokenViewModel>> TokenResult(UserLoginViewModel loginViewModel);
+        Task<ResponseResult<TokenDTO>> TokenResult(UserLoginDTO loginViewModel);
     }
 }

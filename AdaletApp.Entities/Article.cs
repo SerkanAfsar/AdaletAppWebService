@@ -19,6 +19,6 @@ namespace AdaletApp.Entities
         public SourceList Source { get; set; }
         public string? SeoUrl { get; set; }
 
-        public int ReadCount { get; set; } = 1;
+        public int ReadCount { get; set; } = 0;
     }
 }

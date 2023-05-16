@@ -9,9 +9,11 @@ namespace AdaletApp.DAL.Concrete
     public class HukukiHaberRepository : IHukukiHaberRepository
     {
         private readonly IArticleRepository _articleRepository;
-        public HukukiHaberRepository(IArticleRepository _articleRepository)
+        private readonly ICategoryRepository _categoryRepository;
+        public HukukiHaberRepository(IArticleRepository _articleRepository, ICategoryRepository categoryRepository)
         {
             this._articleRepository = _articleRepository;
+            this._categoryRepository = categoryRepository;
         }
         public async Task ArticleSourceList(string categorySourceUrl, int CategoryID)
         {
@@ -83,6 +85,8 @@ namespace AdaletApp.DAL.Concrete
                         var article = new Article();
                         article.Title = title;
 
+                        var categoryEntity = await _categoryRepository.Get(a => a.Id == CategoryID);
+
 
                         var seoTitle = Utils.KarakterDuzelt(title);
                         HtmlNode subDesc = doc.DocumentNode.SelectSingleNode("//h2");
@@ -121,7 +125,7 @@ namespace AdaletApp.DAL.Concrete
 
                         }
 
-                        article.SeoUrl = seoTitle;
+                        article.SeoUrl = categoryEntity.SeoUrl + "/" + seoTitle;
                         article.CategoryId = CategoryID;
                         article.SourceUrl = articleSourceUrl;
                         article.Source = SourceList.HUKUKİHABER;

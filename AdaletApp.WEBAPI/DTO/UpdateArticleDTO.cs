@@ -2,7 +2,7 @@
 
 namespace AdaletApp.WEBAPI.ViewModels
 {
-    public class UpdateArticleViewModel : Article
+    public class UpdateArticleDTO : Article
     {
         public IFormFile? FileInput { get; set; }
     }
